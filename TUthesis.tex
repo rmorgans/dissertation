@@ -1,0 +1,229 @@
+%& --shell-escape --enable-write18
+%
+% The University of Tulsa TeX Template
+%
+%
+%                     Written by
+%
+%                 Richard A. Redner
+%             Associate Dean of Research
+%               and Graduate Studies
+%
+%              The University of Tulsa
+%
+%                     July 2004
+%
+%     Please see the README.TUthesis file for information
+%     on using the TUthesis template.
+%
+%              Modified November 2004
+%
+%  Summary of changes
+%      1.  section, subsection and subsubsection replaced with
+%          TUsection, TUsubsection and TUsubsubsection to correct
+%          the Table of Contents.  This will add bold face and
+%          italics to the appropriate places in the Table of Contents.
+%      2.  Spacing added between first few items in Table of Contents.
+%
+%             Modified January 31, 2005
+%
+%  Summary of changes
+%      1.  Correction made to code for the appendices so that the
+%          automatic numbering is correct for subheadings, figures
+%          and tables. TUappendix command added.
+%
+%             Modified August 15, 2005
+%
+%  Summary of changes
+%
+%      1.  Adjusted spacing after "by".
+%      2.  Added Latex option so that margins are correct
+%          for both PDFLaTeX and for LaTeX.
+%
+%             Modified June 14, 2007
+%
+%  Summary of changes
+%
+%      1.  Implementation of changes proposed by Mike Spanehower  and
+%          Jesus Gonzalez to fix the page numbering problem when tables
+%          and figures cover more than one page.
+%      2.  Implemented a test page so that users can directly verify that
+%          all of the margins are correct and made adjustments to current
+%          margins.
+%      3.  Numerous other minor changes to improve the compliance of the
+%          TeX Thesis Template.
+%
+% This TUthesis Template uses the following two style files
+%
+%       TUthesis.sty
+%       setspace.sty
+%
+% The TUthesis style file was created from scratch, but its
+% construction would not be possible without extensive use of
+% the Stanford Ph.D./Thesis style document.
+%
+% The TUthesis style and template files can be used for
+% both theses and dissertations.
+%
+
+
+\documentclass[12pt,letterpaper]{report}
+
+\RequirePackage{setspace}
+\usepackage{listings}
+\lstset{basicstyle=\small}
+\usepackage{lastpage}
+\usepackage{url}
+\usepackage{microtype} % Provides margin kerning, font expansion, etc.
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+%
+% Use \pdftrue if your are using PDFLaTeX and
+% use \pdffalse if your are using LaTeX
+%
+\newif\ifpdfa
+\pdfatrue %\pdffalse
+
+%
+% At some point in time you will want to verify
+% that the margins are correct. They should be
+% 1 inch all the way around, except for the left
+% margin, which is 1.5 inches. Select \testboxtrue
+% and the template will generate a test page.
+%
+\newif\iftestbox
+\testboxfalse 
+%\testboxtrue
+
+% These should conventionally be usepackage macros, 
+% since this is not a .sty or .cls file. But I'm not going to change it. -GL
+\RequirePackage{setspace}
+\RequirePackage{TUthesis}
+
+% Local package imports
+%\usepackage{amsmath}
+%\usepackage[debug]{dot2texi}
+%\usepackage{tikz}
+%\usetikzlibrary{shapes,arrows}
+
+\includeonly{chapter1,chapter2,chapter3,chapter4,chapter5} %
+
+\begin{document}
+
+
+
+\iftestbox \testboxex \fi
+
+%
+% Enter the information for the title page,
+% signature page and abstract.
+%
+\titleoneline{A Forensically Sound Method For Evidence Extraction From Heavy Truck ECMs}
+% The title with line breaks for the front pages:
+\title{A Forensically Sound Method For Evidence Extraction From Heavy Truck ECMs}
+\author{James Johnson}
+\degreename{Doctor of Science}
+\dept{Computer Science}
+\submityear{2014}
+
+%
+% If there is a co-advisor, use \coadvisortrue
+% otherwise use \coadvisorfalse
+%
+\coadvisorfalse  %\coadvisortrue
+
+%
+% The number of members on the committee
+% including the chairperson or the co-advisors
+%
+\committeesize=5
+
+\advisor{Mauricio Papa}    % name of chairperson or co-advisor
+\secondmember{John Hale} % name of second member or co-advisor
+\thirdmember{Jeremy Daily}   % name of third member
+\fourthmember{Peter Hawrlyak}
+\fifthmember{Akhilesh Bajaj}
+
+\numofpages{\pageref{LastPage}}                    % number of pages in the document
+\numofchapters=5                   % number of chapters in the document
+\numofabstractwords{151}            % number of words in the abstract
+
+%
+% If this is a thesis use \thesistrue
+% and if this is a dissertation use \thesisfalse
+%
+\thesisfalse  %\thesisfalse
+
+% The template is set up for a copyright page along with a figures
+% page and a tables page. If one of these is missing, change
+%
+%      \copyrightrue to  \copyrighfalse
+%      \tablestrue   to  \tablesfalse
+%      \figurestrue  to  \figuresfalse
+%
+% respectively.
+
+%\copyrighttrue     %
+\copyrightfalse
+\figurespagetrue   %
+%\figurespagefalse
+\tablespagetrue    %
+% \tablespagefalse
+
+
+\beforeabstract    % generates the pages that come before the abstract
+\abstractp         % generates initial content of the abstract
+
+
+%
+% Place the text of the abstract here
+%
+
+\input{abstract}
+
+\acknowledgementsp
+%
+% Place the text of your acknowledgements page here
+%
+
+
+This material is based on research sponsored by DARPA under agreement number 
+FA8750-09-1-0208. The U.S. Government is authorized to reproduce and distribute 
+reprints for Governmental purposes notwithstanding any copyright notation 
+thereon. The views and conclusions contained herein are those of the authors and
+should not be interpreted as necessarily representing the official policies or 
+endorsements, either expressed or implied, or DARPA or the U.S. Government.
+  
+\afteracknowledgementsp
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main Body of Document
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\include{chapter1}
+\include{chapter2}
+\include{chapter3}
+\include{chapter4}
+\include{chapter5}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BIBLIOGRAPHY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\addtocontents{toc}{\protect{\hfill \ }}
+%\addcontentsline{toc}{section}{\contentsadj NOMENCLATURE}
+
+\bibliographyp
+\bibliography{TUthesis}
+\bibliographystyle{plain}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDICES AS NECESSARY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\appendixpages       % prepare for the generation of the appendices
+%\include{Appendices}
+\end{document}
