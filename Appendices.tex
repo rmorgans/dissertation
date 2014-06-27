@@ -1,0 +1,1153 @@
+\begin{appendices}
+\chapter{Code Listings}
+
+\section{Extraction Code}
+
+\subsection{catextract.py}\label{app:extraction}
+%\lstset{basicstyle=\small}
+%\lstinputlisting[language=Python]{catreplay/simple-extract.py}
+\begin{minted}{python}
+import RP1210
+import logfileparser
+import sys
+from RP1210Defines import *
+import catATA
+import time
+import ATAClient
+import atamessage
+import pickle
+import J1587_Transport as transport
+import responses as response_utils
+#import threading
+
+
+excluded_pids = [[0xfc,0x58]]
+multiple_pids = {0xDB:8,0xD3:10}
+
+
+dupefile = open("dupefile.txt","w")
+def get_proprietary(driver):
+   start = time.time()
+   while True:
+      if time.time() - start > 2:
+         print("timed out while waiting for response")
+         return None
+      msg = driver.read_message()
+      if len(msg) < 5:
+         continue
+      if catATA.is_proprietary(msg) or msg[1] == 0xc5:
+#         print(msg[4:])
+         return msg
+      else:
+         continue
+
+def get_num_responses(pid):
+   if pid in excluded_pids:
+      return 0
+   elif pid in multiple_pids.keys():
+      return multiple_pids[pid]
+   else:
+      return 1
+
+def get_pid_msg(msg,key,driver):
+   got_pid = False
+   this_pid = msg.pid
+   start = time.time()
+   retmsg = None
+   while (not got_pid) and (not time.time() - start > 5):
+      inbuf = get_proprietary(driver)
+      if inbuf is None:
+         #driver.send_message(msg.to_buffer())
+         continue
+
+      elif inbuf[1] == 0xc5:
+         print("transport protocol engage")
+         tmp = transport.receive_message(msg.src,msg.dst,driver,rts=inbuf)#check these src dst assignments if there's problems
+         if tmp[0] == 0xfe:
+            retmsg = atamessage.ATAMessage.from_transport(msg.dst,msg.src,tmp,key=key)
+            print("I think the PID is %d, hoping for %d" % (retmsg.pid,this_pid))
+      else:
+         retmsg = atamessage.ATAMessage.from_buf(inbuf,key=key)
+         print("I think the PID is %d, hoping for %d" % (retmsg.pid,this_pid))
+
+      if retmsg.pid == this_pid:
+         got_pid = True
+      else:
+         retmsg = None
+
+   return retmsg
+
+
+
+def get_pid(msg,key,driver):
+   if msg.data in excluded_pids:
+      return []
+   pid = msg.pid
+   responses = []
+   numresponses = get_num_responses(pid)
+   i = 0
+   tries = 0
+   if numresponses > 1:
+      dupefile.write("\n\n")
+   while i < numresponses:
+      respmsg = get_pid_msg(msg,key,driver)
+
+      if respmsg is not None:
+         dupe = False
+         for r in responses:
+            if response_utils.compare_J1708_msg(respmsg.to_plain_buffer(),r.to_plain_buffer()):
+               dupe = True
+               break
+         if dupe:
+            continue
+         responses.append(respmsg)
+         i += 1
+      else:
+         i = 0
+         driver.send_message(msg.to_buffer())
+   if len(responses) > 1:
+      for r in responses:
+         dupefile.write(str(r.to_plain_buffer()))
+   return responses
+
+
+
+
+
+def get_setup(msg,driver):
+   setup = False
+   while not setup:
+      inmsg = get_proprietary(j1708)
+      if inmsg is None:
+         driver.send_message(msg)
+         continue
+      if inmsg[1] == 0xc5:
+         continue
+      thismsg = atamessage.ATAMessage.from_buf(inmsg)
+      if thismsg.is_setup():
+         return thismsg.data[-1] & 0x0F
+      else:
+         continue
+
+
+def get_encrypted_response(driver):
+   return get_command(driver,[0xB0,0xC0])
+
+def get_unencrypted_response(driver):
+   return get_command(driver,[0x90])
+
+def get_encryption_setup(driver):
+   return get_command(driver,[0xF0])
+
+
+   
+
+
+driver = RP1210.RP1210Driver("DPA4PMA.DLL")
+driver.initialize()
+
+
+try:
+   fh = open(sys.argv[1],"r")
+except:
+   print(sys.argv[1])
+   print("error opening file")
+   sys.exit(-1)
+   
+tokens = logfileparser.tokenize_file(fh)
+
+   
+tdriver = RP1210.RP1210Driver("DPA4PMA.DLL")
+tdriver.initialize()
+j1708 = RP1210.J1708_Provider("DPA4PMA.DLL",driver=tdriver)
+j1939 = RP1210.J1939_Provider("DPA4PMA.DLL",driver=tdriver)
+j1708.initialize()
+j1939.initialize()
+
+print("all set up, press any key to start extracting.")
+
+sys.stdin.read(1)
+ataclient = ATAClient.ATAClient(j1708)
+protocols = {}
+J1708ResponseQueue = []
+J1939ResponseQueue = []
+for i in range(len(tokens)):
+   token = tokens[i]
+   buf = token.split(",")
+   
+   if buf[1] == "SC" or buf[1] == "CD":
+      continue
+   elif buf[1] == "CC" and buf[2] == "00":
+      protocols[buf[3]] = buf[5]
+   elif buf[1] == "SM":
+      #print(buf)
+      msg = logfileparser.send_message(token,proto=protocols[buf[0]])
+      if protocols[buf[0]] == "J1708":
+         if len(msg.data) < 5 or not msg.data[1] == 0xFE:
+            continue
+         j1708.send_message(msg.data)
+         sm = atamessage.ATAMessage.from_buf(msg.data,key=ataclient.encrypt_key)
+         if sm.is_setup():
+            ataclient.encrypt_key = sm.data[-1] & 0x0F
+            ataclient.decrypt_key = get_setup(msg.data,j1708)
+            print("encrypt key: %d decrypt key: %d" % (ataclient.encrypt_key,ataclient.decrypt_key))
+         else:
+            print("Trying to match %s" % sm.to_plain_buffer())
+            responses = get_pid(sm,ataclient.decrypt_key,j1708)
+            if len(responses) > 0:
+               thisqueue = []
+               for response in responses:
+                  thisqueue.append(response.to_plain_buffer())
+               J1708ResponseQueue.append([sm.to_plain_buffer(),thisqueue])
+               print(J1708ResponseQueue[-1])
+
+         time.sleep(.3)
+
+         
+      elif protocols[buf[0]] == "J1939":
+         #msg = logfileparser.send_message(token,proto=protocols[buf[0]])
+         j1939.send_raw(msg.data)
+#         time.sleep(.3)
+#         print("j1939 sent: %s" % msg.data)
+         inmsg = j1939.read_raw()
+         while len(inmsg) == 0:
+            j1939.send_raw(msg.data)
+            inmsg = j1939.read_raw()
+
+         J1939ResponseQueue.append([msg.data,inmsg])
+         print(J1939ResponseQueue[-1])
+         time.sleep(.3)
+
+      
+      #driver.send_message(msg.client_id,msg.data)
+      #just send this message.
+   else:
+      pass
+
+del(j1708)
+del(j1939)
+fh.close()
+
+#fh2 = open("responses2.txt","w")
+
+#for response in ataclient.J1708responses:
+#   fh2.write("%s   %s\n" % (list(map(hex,response[0].to_plain_buffer())),list(map(hex,response[1].to_plain_buffer()))))
+
+#fh2.close()
+
+try:
+   queues = (J1708ResponseQueue,J1939ResponseQueue)
+   response_queues = open("responsequeues.pkl","wb")
+   pickle.dump(queues,response_queues)
+   response_queues.close()
+except:
+   print("Problem pickling responses")
+
+
+print("Extraction complete!\a\a\a\a")
+\end{minted}
+
+\subsection{catreplay.py}\label{app:replay}
+\begin{minted}{python}
+import RP1210
+import logfileparser
+import sys
+from RP1210Defines import *
+import catATA
+import time
+import ATAClient
+import atamessage
+import pickle
+from multiprocessing import Process
+from responses import ResponseQueue
+import J1587_Transport as transport
+#import threading
+
+encrypt_key = None
+decrypt_key = None
+
+'''tdriver = RP1210.RP1210Driver("DPA4PMA.DLL")
+tdriver.initialize()
+
+j1939 = RP1210.J1939_Provider("DPA4PMA.DLL",driver=tdriver)
+j1708.initialize()
+j1939.initialize()'''
+
+def j1708_replay_callback(recvd_msg,resp_queue):
+  global encrypt_key
+  global decrypt_key
+  if not atamessage.is_proprietary(recvd_msg):
+    return
+  if len(recvd_msg) < 5:
+    return
+  inmessage = atamessage.ATAMessage.from_buf(recvd_msg,key=decrypt_key)
+  to_send = []
+  if inmessage.is_setup():
+    #print("setting decrypt key to %d" % (inmessage.data[-1] & 0x0F))
+    decrypt_key = inmessage.data[-1] & 0x0F
+    to_send.append(atamessage.ATAMessage(0x80,0xAC,atamessage.SECURITY_SETUP,[0x0B]))
+    encrypt_key = 0x0B & 0x0F
+    return to_send
+  else:
+    #print("Received: %s" % list(map(hex,inmessage.to_plain_buffer())))
+    to_send_raw = resp_queue.get_j1708(inmessage.to_plain_buffer())
+    if to_send_raw is not None and len(to_send_raw) > 0:
+      for tsr in to_send_raw:
+        to_send.append(atamessage.ATAMessage.from_plain_buf(tsr,key=encrypt_key))
+        if len(to_send_raw) > 1:
+          print("Sending: %s" % list(map(hex,tsr)))
+      return to_send
+    else:
+      return None
+
+def j1939_replay_callback(recvd_msg,resp_queue):
+  outmsg = resp_queue.get_j1939(recvd_msg)
+  return outmsg
+
+def j1708_replay_proc(resp_queue):
+#  tdriver = RP1210.RP1210Driver("DPA4PMA.DLL")
+#  tdriver.initialize()
+  driver = RP1210.J1708_Provider("DPA4PMA.DLL")
+  driver.initialize()
+  while True:
+    inmsg = driver.read_message()
+    outmsg_list = j1708_replay_callback(inmsg,resp_queue)
+    if outmsg_list is None or len(outmsg_list) == 0:
+      print("no outmsgs, continuing")
+      continue
+    else:
+      for outmsg in outmsg_list:
+        #print("sending %s" % outmsg)
+        time.sleep(.05)
+        if len(outmsg.data) + 2 <= 21:
+          driver.send_message(outmsg.to_buffer())
+        else:
+          (src,dst,data) = outmsg.to_transport()
+          transport.send_message(src,dst,data,driver)
+
+
+def j1939_replay_proc(resp_queue):
+  #tdriver = RP1210.RP1210Driver("DPA4PMA.DLL")
+  #tdriver.initialize()
+  driver = RP1210.J1939_Provider("DPA4PMA.DLL")
+  driver.initialize()
+  while True:
+    inmsg = driver.read_raw()
+    print("J1939 Received: %s" % list(map(hex,inmsg)))
+    outmsg = j1939_replay_callback(inmsg,resp_queue)
+    if outmsg:
+      driver.send_raw(outmsg)
+
+
+if __name__ == '__main__':
+  try:
+    queuesfh = open("responsequeues.pkl","rb")
+    queues = pickle.load(queuesfh)
+  except:
+    print("Could not load response queues.")
+    sys.exit(1)
+
+  j1708_queue = queues[0]
+  
+  j1939_queue = queues[1]
+
+  resp_queue = ResponseQueue(J1708requests=j1708_queue,J1939requests=j1939_queue)
+
+  print("all set up, press any key to start replay.")
+  sys.stdin.read(1)
+
+  j1708process = Process(target=j1708_replay_proc,args=(resp_queue,))
+  j1939process = Process(target=j1939_replay_proc,args=(resp_queue,))
+
+  j1708process.start()
+  j1939process.start()
+
+  while True:
+    q = sys.stdin.read(1)
+    if q == "q":
+      j1708process.terminate()
+      j1939process.terminate()
+      sys.exit(1)
+
+
+
+
+\end{minted}
+
+\subsection{logfileparser.py}
+\begin{minted}{python}
+import re
+import sys
+
+
+#matches the beginning of a message but not a wrapped-around message
+token = re.compile('(\d\d|XX),(CC|CD|SM|SC|RM).*')
+fragment = re.compile('(\S\S,?)+$')
+messages = []
+
+class rp1210_client():
+  def __init__(self,client_id,flags):
+    self.client_id = client_id
+    self.flags = flags
+
+def tokenize_file(fh):
+  lines = fh.readlines()
+  tokens = []
+  for line in lines:
+    mymatch = token.search(line)
+    if mymatch:
+      tokens.append(mymatch.group(0))
+    else:
+      newmatch = fragment.search(line)
+      tokens[-1] += newmatch.group(0)
+  
+  for i in range(len(tokens)):
+    if tokens[i][-1] == ",":
+      tokens[i] = tokens[i][:-1]
+      
+  return tokens
+  
+class rp1210_msg():
+  def __init__(self,tokenstring):
+    self.dat = tokenstring.split(",")
+    self.message_type = self.dat[1]
+    
+class client_connect(rp1210_msg):
+  def __init__(self,tokenstring):
+    super().__init__(tokenstring)
+    self.client_id = int(self.dat[3])
+    self.protocol = self.dat[5]
+    #This should be enough. I don't think we need to know Tx/Rx buffer sizes 
+    
+class send_command(rp1210_msg):
+  def __init__(self,tokenstring):
+    super().__init__(tokenstring)
+    self.client_id = int(self.dat[0])
+    self.retval = int(self.dat[2])
+    self.msg_size = int(self.dat[3])
+    self.command_number = int(self.dat[4])
+    if self.msg_size > 0:
+      self.msg_string = list(map(lambda x: chr(int(x,16)),self.dat[5:]))
+    else:
+      self.msg_string = ""
+    
+class send_message(rp1210_msg):
+  def __init__(self,tokenstring,proto="J1939"):
+    super().__init__(tokenstring)
+    self.client_id = int(self.dat[0])
+    self.bytes_sent = int(self.dat[3])
+    if proto == "J1708":#Account for the first byte in the buffer being the priority byte.
+      self.data = list(map(lambda x: int(x,16),self.dat[7:]))
+    else:
+      self.data = list(map(lambda x: int(x,16),self.dat[6:]))
+    
+#note: track client_connect calls to see if need to account for echo byte
+class read_message(rp1210_msg):
+  def __init__(self,tokenstring):
+    super().__init__(tokenstring)
+    self.client_id = int(self.dat[0])
+    self.bytes_received = int(self.dat[2])
+    self.timestamp = int("".join(self.dat[5:9]),16)
+    self.data = list(map(lambda x: int(x,16),self.dat[9:]))
+  
+if __name__ == "__main__":
+  filename = sys.argv[1]
+  try:
+    fh = open(filename,'r')
+  except:
+    print("problem reading file")
+    sys.exit(1)
+    
+  tokenlist = tokenize_file(fh)
+      
+  for a in tokenlist:
+    print(a)
+    
+
+
+
+
+\end{minted}
+
+\subsection{ATAClient.py}
+\begin{minted}{python}
+
+import atamessage
+import J1587_Transport as transport
+import copy
+
+
+class j1939holder():
+  def __init__(self,indata):
+    self.data = indata
+  def to_plain_buffer(self):
+    return self.data
+
+class ATAClient():
+  def __init__(self,driver,J1708responses=None,J1939responses=None):
+    self.driver = driver
+    self.encrypt_key = None
+    self.decrypt_key = None
+    self.src = 0xAC
+    if J1708responses is None:
+      self.J1708responses = []
+    if J1939responses is None:
+      self.J1939responses = []
+
+  #callback for when extractions are performed
+  def extraction_callback(self,sent_msg,recvd_msgs):
+    outmessage = atamessage.ATAMessage.from_buf(sent_msg,key=self.encrypt_key)
+    print("Sent: %s" % list(map(hex,sent_msg)))
+    this_queue = []
+    for recvd_msg in recvd_msgs:
+      if atamessage.is_proprietary(recvd_msg):
+        print("Received: %s" % list(map(hex,recvd_msg)))
+        inmessage = atamessage.ATAMessage.from_buf(recvd_msg,key=self.decrypt_key)
+        if inmessage.is_setup():
+          print(list(map(hex,recvd_msg)))
+          print("setting decrypt key to %d" % (inmessage.data[-1] & 0x0F))
+          self.decrypt_key = inmessage.data[-1] & 0x0F
+        else:
+          this_queue.append(inmessage.to_plain_buffer())
+        #self.J1708responses.append((outmessage.to_plain_buffer(),inmessage.to_plain_buffer()))
+
+      elif transport.is_rts(recvd_msg):
+        src = recvd_msg[0]
+        dst = recvd_msg[3]
+        msg = None
+        while msg is None:
+          msg = transport.receive_message(self.src,dst,self.driver,recvd_msg)
+          if msg is None:
+            print("resending request")
+          self.driver.send_message(outmessage.to_buffer())
+        print("Received transport: %s" % msg)
+        if msg[0] == 0xFE:
+          inmessage = atamessage.ATAMessage.from_transport(src,dst,msg,key=self.decrypt_key)
+          #self.J1708responses.append((outmessage.to_plain_buffer(),inmessage.to_plain_buffer()))
+          this_queue.append(inmessage.to_plain_buffer())
+      else:
+        pass
+
+    if len(this_queue) > 0:
+      self.J1708responses.append((outmessage.to_plain_buffer(),this_queue))
+
+  def j1939_extraction_callback(self,sent_msg,recvd_msg):
+    self.J1939responses.append((sent_msg,recvd_msg))
+
+
+\end{minted}
+
+
+\subsection{atamessage.py}
+\begin{minted}{python}
+import copy
+
+READ_REQUEST = 0x70
+WRITE_REQUEST = 0x80
+READ_WRITE_RESPONSE = 0x90
+ENCRYPTED_BROADCAST_REQUEST = 0xA0
+ENCRYPTED_BROADCAST_RESPONSE = 0xB0
+ENCRYPTED_READ_REQUEST = 0xC0
+ENCRYPTED_WRITE_REQUEST = 0xD0
+ENCRYPTED_READ_WRITE_RESPONSE = 0xE0
+SECURITY_SETUP = 0xF0
+
+__keyarray = [0x19,0xAB,0x5C,0x7D,0xED,0x91,0x96,\
+            0x1B,0x8B,0xB7,0xA2,0x78,0x7A,0x89,\
+              0x5E,0x0B,0x92,0x4D,0x84]
+
+
+def is_encrypted_req(num):
+  cmd = num & 0xF0
+  return cmd >= 0xA0 and cmd <= 0xE0
+
+def is_proprietary(buf):
+  return buf[1] == 0xFE
+
+def generate_key(key,code):
+  return key + (code % 4)
+
+def decrypt_buf(buf,index):
+  if index >= len(__keyarray):
+    return buf
+  nbuf = [None]*len(buf)
+  bl = __keyarray[index]
+  for i in range(len(buf)):
+    nbuf[i] = buf[i] ^ bl
+  return nbuf
+
+def compare_msgs(a,b):
+  if not (a.command & 0xF0) == (b.command & 0xF0):
+    return False
+  for (q,z) in zip(a.data,b.data):
+    if not q == z:
+      return False
+
+  return True
+
+
+#encryption and decryption are the same thing
+#just creating this helper function for readability
+def encrypt_buf(buf,index):
+  return decrypt_buf(buf,index)
+
+class ATAMessage():
+  def __init__(self,src,dst,command,data,key=None,plain=False):
+    self.src = src
+    self.dst = dst
+    self.command = command
+    self.data = copy.deepcopy(data)
+    self.key = key
+    if is_encrypted_req(command) and not plain and key is not None:
+      code = self.command & 0x0F
+      tkey = generate_key(key,code)
+      self.data = decrypt_buf(data,tkey)
+    self.pid = self.data[0]
+
+
+  @classmethod
+  def from_buf(cls, buf,key=None):
+    src = buf[0]
+    dst = buf[2]
+    command = buf[3]
+    data = buf[4:]
+    return cls(src,dst,command,data,key=key)
+
+  @classmethod
+  def from_plain_buf(cls,buf,key=None):
+    src = buf[0]
+    dst = buf[2]
+    if buf[3] >= 0xa0 and buf[3] <= 0xFF:
+      command = buf[3] | 0x02
+    else:
+      command = buf[3]
+    data = buf[4:]
+    return cls(src,dst,command,data,key=key,plain=True)
+
+  @classmethod
+  def from_transport(cls,src,dst,data,key=None):
+    command = data[1]
+    return cls(src,dst,command,data[2:],key=key)
+
+  def is_encrypted_request(self):
+    return is_encrypted_req(self.command)
+
+  def is_setup(self):
+    return self.command & 0xF0 == 0xF0
+
+  def _data_out(self,newkey=None):
+    if newkey is None:
+      thiskey = self.key
+    else:
+      thiskey = newkey
+    if self.is_encrypted_request():
+      index = generate_key(thiskey,self.command & 0x0F)
+      data = encrypt_buf(self.data,index)
+    else:
+      data = self.data
+
+    return data
+
+  def to_buffer(self,newkey=None):
+    data = self._data_out(newkey)
+    return [self.src,0xFE,self.dst,self.command]+data
+
+  def to_plain_buffer(self):
+    return [self.src,0xFE,self.dst,self.command&0xF0]+self.data
+
+  def to_transport(self,newkey=None):
+    data = self._data_out(newkey)
+    return (self.src,self.dst,[0xFE,self.command]+data)
+
+
+
+
+
+
+\end{minted}
+
+
+\subsection{responses.py}
+\begin{minted}{python}
+#/usr/bin/env python
+
+def compare_J1708_msg(msg1,msg2):
+  if not len(msg1) == len(msg2):
+    return False
+  
+  for i in range(0,len(msg1)):
+    if (not i == 3 and not msg1[i] == msg2[i]) or (i==3 and not msg1[i] & 0xF0 == msg2[i] & 0xF0):
+      return False
+  
+  return True
+
+def compare_j1939_msg(msg1,msg2):
+  print("comparing %s to %s" % (msg1,msg2))
+  if not len(msg1) == len(msg2):
+    return False
+
+  for i in range(len(msg1)):
+    if i == 3:
+      pass
+    elif i == 1: #and msg1[i] & 0xFE == msg2[i] & 0xFE:
+      pass
+    elif not (msg1[i] == msg2[i] and not i ==3):
+      return False
+  return True
+
+#Make this work for both J1939 and J1708
+#request: the request to match, should be an array of integers
+#request_queue: list of request/response pairs. Each pair is a 2-tuple.
+#request_index: the current index in the ResponseQueue for that protocol
+#comp_func: function for comparing requests. see compare_* functions above.
+
+def _get_response(request,request_queue,request_index,comp_func):
+  if request_index is None:
+    return (None,None)
+
+  if comp_func(request,request_queue[request_index][0]):
+    return (request_index,request_queue[request_index][1])
+
+  start = request_index
+  request_index = (request_index + 1) % len(request_queue)
+  while not request_index == start:
+    if comp_func(request,request_queue[request_index][0]):
+      return (request_index+1,request_queue[request_index][1])
+    else:
+      request_index = (request_index + 1) % len(request_queue)
+
+  return (start, None)
+
+def _get_multi_response(multicurrent,response_queue):
+  for r in response_queue:
+    if len(r[1]) <= 1:
+      continue
+    responses = r[1]
+    test_response = responses[0]
+    found = True
+    for i in range(len(multicurrent)):
+      if not test_response[5+i] == multicurrent[i]:
+        found = False
+        break
+
+    if found:
+      return responses
+
+  return None
+
+
+  
+class ResponseQueue():
+  def __init__(self, J1708requests = None,J1939requests = None):
+    if J1708requests is None:
+      self.J1708requests = []
+      self.J1708current = None
+      self.J1708multicurrent = None
+    else:
+      self.J1708requests = J1708requests
+      self.J1708current = 0
+
+    if J1939requests is None:
+      self.J1939requests = []
+      self.J1939current = None
+    else:
+      self.J1939requests = J1939requests
+      self.J1939current = 0
+  
+  def get_j1939(self,request):
+    (self.J1939current,response) = _get_response(request,self.J1939requests,self.J1939current,compare_j1939_msg)
+    return response
+
+  def get_j1708(self,request):
+    if request[4] == 0xD1:
+      self.J1708multicurrent = request[5:]
+    if request[4] == 0xD3:
+      return _get_multi_response(self.J1708multicurrent,self.J1708requests)
+    (self.J1708current,response) = _get_response(request,self.J1708requests,self.J1708current,compare_J1708_msg)
+    return response
+      
+
+\end{minted}
+%\lstinputlisting{catreplay/responses.py}
+
+\section{Supporting Code}
+\subsection{RP1210Trace.py}\label{app:trace}
+\begin{minted}{python}
+#!/usr/bin/env python
+
+import ctypes
+from pydbg import *
+from pydbg.defines import *
+import sys
+from RP1210Call import *
+import utils
+import re
+
+RP1210calls = {'RP1210_SendMessage':None,'RP1210_ReadMessage':None,'RP1210_ClientConnect':None,'RP1210_ClientDisconnect':None,'RP1210_SendCommand':None}
+
+#Obtain list of RP1210 DLLs registered on the system
+logline = re.compile('APIImplementations=(.*)$')
+try:
+  rp1210ini = open("C:\\Windows\\RP121032.ini")
+except:
+  print("Could not open RP121032.ini")
+  sys.exit(-1)
+liblist = []
+for line in rp1210ini.readlines():
+  m = re.match(logline,line)
+  if m:
+    liblist = m.group(1).split(",")
+
+for i in range(len(liblist)):
+  liblist[i]+=".dll"
+
+
+
+try:
+  logfile = open("trace_out_2.txt","w")
+except:
+  print("Count not open logfile for writing")
+  sys.exit(-1)
+
+module_name = None
+dbg = pydbg()
+dbg.get_debug_privileges()
+getproc = dbg.func_resolve("kernel32.dll","GetProcAddress")
+procname = sys.argv[1]
+
+
+
+
+
+
+#Wait until the desired process starts, then attach to it
+attached = False
+while not attached:
+  for (pid,name) in dbg.enumerate_processes():
+    if procname in name:
+      dbg.attach(pid)
+      print("Attaching to %s, pid %d" % (name,pid))
+      attached = True
+      break
+
+
+
+
+
+generic_call_queue = []
+read_call_queue = []
+
+
+hooks = utils.hook_container()
+
+def generic_return_handler(debug,args,ret):
+  generic_call_queue[-1].retval = ret
+  print(str(generic_call_queue[-1].to_buffer()))
+  logfile.write(str(generic_call_queue[-1].to_buffer()))
+  logfile.write("\n")
+  return DBG_CONTINUE
+
+def smhandler(debug,args):
+
+  clientID = args[0]
+  msgbuf = args[1]
+  msglen = args[2]
+  blockonsend = args[4]
+
+#  debug.bp_set(retholder,handler=generic_return_handler)
+
+
+  generic_call_queue.append(SendMessage(clientID,msglen,blockonsend,sent_message))
+  return DBG_CONTINUE
+
+def rm_return_handler(debug,args,ret):
+
+  try:
+    msg = debug.read_process_memory(args[1],ret)
+  except:
+    msg = "Read Error"
+
+  read_call_queue[-1].retval = ret
+  read_call_queue[-1].message = msg
+  print(str(read_call_queue[-1].to_buffer()))
+  logfile.write(str(read_call_queue[-1].to_buffer()))
+  logfile.write("\n")
+  return DBG_CONTINUE
+
+def rmhandler(debug, args):
+
+  clientID = args[0]
+  bufholder = args[1]
+  bufsize = args[2]
+  blockonread = args[3]
+
+
+  read_call_queue.append(ReadMessage(clientID,bufsize,blockonread))
+  return DBG_CONTINUE
+
+
+def cchandler(debug,args):
+
+  device_id = args[1]
+  fpchprotocol = args[2]
+  txbufsize = args[3]
+  rxbufsize = args[4]
+
+  protocol_string = debug.read_process_memory(fpchprotocol,10)
+  msg = debug.get_ascii_string(protocol_string)
+  if not msg:
+    msg = debug.get_unicode_string(protocol_string)
+
+  generic_call_queue.append(ClientConnect(device_id,txbufsize,rxbufsize,msg))
+  return DBG_CONTINUE
+
+def cdhandler(debug,args):
+
+  device_id = args[0]
+
+
+  generic_call_queue.append(ClientDisconnect(device_id))
+  return DBG_CONTINUE
+
+def schandler(debug,args):
+
+  commandnumber = args[0]
+  clientID = args[1]
+  fpchClientCommand = args[2]
+  bufsize = args[3]
+
+  commandbuf = debug.read_process_memory(fpchClientCommand,bufsize)
+
+  generic_call_queue.append(SendCommand(commandnumber,clientID,commandbuf,bufsize))
+  return DBG_CONTINUE
+
+def get_proc_addr_hook(debug,args,ret):
+  try:
+    mem = debug.read_process_memory(args[1],40)
+  except:
+    return DBG_CONTINUE
+
+  msg = debug.get_ascii_string(mem)
+  if not msg:
+    msg = debug.get_unicode_string(mem)
+
+  if msg in RP1210calls.keys():
+    RP1210calls[msg] = ret
+    print("%s is at %d" % (msg,ret))
+    if not None in RP1210calls.values():
+      hooks.add(debug,RP1210calls["RP1210_ReadMessage"],4,rmhandler,rm_return_handler)
+      hooks.add(debug,RP1210calls["RP1210_SendMessage"],5,smhandler,generic_return_handler)
+      hooks.add(debug,RP1210calls["RP1210_ClientConnect"],6,cchandler,generic_return_handler)
+      hooks.add(debug,RP1210calls["RP1210_ClientDisconnect"],1,cdhandler,generic_return_handler)
+      hooks.add(debug,RP1210calls["RP1210_SendCommand"],4,schandler,generic_return_handler)
+  return DBG_CONTINUE
+
+def load_dll_handler(debug):
+  last_dll = debug.get_system_dll(-1)
+  #print(last_dll.name)
+  if last_dll.name == "kernel32.dll":
+    hooks.add(dbg,getproc,2,None,get_proc_addr_hook)
+
+  return DBG_CONTINUE
+
+
+#Check to see if a RP1210 DLL is loaded already
+modules = dbg.enumerate_modules()
+loaded = False
+rp1210module = None
+for module in map(lambda x: x[0],modules):
+  if module.lower() in map(lambda x: x.lower(),liblist):
+    loaded = True
+
+    rp1210module = module
+    break
+
+if loaded:
+  print("Found %s, resolving function addresses." % rp1210module)
+  sendmsg = dbg.func_resolve_debuggee(rp1210module,"RP1210_SendMessage")
+  readmsg = dbg.func_resolve_debuggee(rp1210module,"RP1210_ReadMessage")
+  clientconnect = dbg.func_resolve_debuggee(rp1210module,"RP1210_ClientConnect")
+  clientdisconnect = dbg.func_resolve_debuggee(rp1210module,"RP1210_ClientDisconnect")
+  sendcommand = dbg.func_resolve_debuggee(rp1210module,"RP1210_SendCommand")
+
+  hooks.add(dbg,sendmsg,5,smhandler,generic_return_handler)
+  hooks.add(dbg,readmsg,4,rmhandler,rm_return_handler)
+  hooks.add(dbg,clientconnect,6,cchandler,generic_return_handler)
+  hooks.add(dbg,clientdisconnect,1,cdhandler,generic_return_handler)
+  hooks.add(dbg,sendcommand,4,schandler,generic_return_handler)
+else:
+  print("Couldn't find module in memory, we'll wait for it.")
+  dbg.set_callback(LOAD_DLL_DEBUG_EVENT,load_dll_handler)
+dbg.run()
+
+
+
+
+
+\end{minted}
+
+\subsection{J1708 Driver}
+\begin{minted}{python}
+#!/usr/bin/python3
+
+
+
+import serial
+import time
+from multiprocessing import Process, Pipe, Lock
+from functools import reduce
+import struct
+
+#TODO: need a thread that monitors the J1708 bus and continually places messages in the receive buffer.
+#      upon initialization, thread needs to spawn and synchronize itself with the J1708 bus.
+
+TENBITTIMES = .0010417
+
+def toSignedChar(num):
+  if type(num) is bytes:
+    return struct.unpack('b',num)[0]
+  else:
+    return struct.unpack('b',struct.pack('B',num & 0xFF))[0]
+
+def checksum(msg):
+  if type(msg[0]) is bytes:
+    thismsg = list(map(lambda x: int.from_bytes(x,byteorder='big'),msg))
+  else:
+    thismsg = msg
+  return toSignedChar(~reduce(lambda x,y: (x + y) & 0xFF, list(thismsg)) + 1)
+
+def check(msg):
+  if type(msg[0]) is bytes:
+    thismsg = list(map(lambda x: int.from_bytes(x,byteorder='big'), msg))
+  else:
+    thismsg = msg
+  return toSignedChar(reduce(lambda x,y: (x+y) & 0xFF, list(thismsg)))
+
+def initialize(busport,buslock):
+  synced = False
+  buslock.acquire()
+  qtime = time.time()
+  busport.flushInput()
+  busport.timeout = 0
+  while not synced:
+    #print(time.clock())
+    a = busport.read(1)
+    if not a is b'':
+      qtime = time.time()
+    elif time.time() - qtime < TENBITTIMES:
+      continue
+    else:
+      synced = True
+
+  buslock.release()
+
+
+
+
+    
+def getmsg(busport,buslock):
+  finished = False
+  msg = []
+  buslock.acquire()
+  ttimeout = busport.timeout
+  busport.timeout = TENBITTIMES
+  tempb = b''
+        #periodically timeout and let a blocking sender go.
+  while tempb is b'':
+    tempb = busport.read(1)
+    if tempb is b'':
+      buslock.release()
+      buslock.acquire()
+  msg += [tempb]
+  busport.timeout = 0
+  stime = time.time()
+  
+  while not finished:
+    a = busport.read(1)
+    t = time.time()
+    if a is b'' and t - stime > TENBITTIMES:
+      finished = True
+    elif a is b'':
+      continue
+    else:
+      stime = t
+      msg += [a]
+
+  busport.timeout=ttimeout
+  buslock.release()
+  if not check(msg[:-1]) + toSignedChar(msg[-1]) == 0:
+    return None
+  else:
+    return msg
+
+    #msgqueue: a list type to enqueue messages
+    #queuelock: a lock object that controls access to the queue
+def run(busport,buslock,p):
+  initialize(busport,buslock)
+  while True:
+    thismsg = getmsg(busport,buslock)
+    if thismsg is not None:
+      p.send(thismsg)
+#test
+#    def __init__(self,busport=None,buslock=None,msglock=None,msgqueue=None):
+class J1708():
+  def __init__(self,uart=None):
+    self._sport = None
+    if uart is not None:
+      self._sport = serial.Serial(port=uart,baudrate=9600,
+                bytesize=serial.EIGHTBITS,
+                stopbits=serial.STOPBITS_ONE)
+
+    self.buslock = Lock()
+    self.mypipe, self.otherpipe = Pipe()
+    self.r_proc = Process(target=run, args=(self._sport,self.buslock,self.otherpipe))
+    self.r_proc.start()
+
+
+  def read_message(self,timeout=None):
+    if not self.mypipe.poll(timeout):
+      return None
+
+    retval = self.mypipe.recv()
+
+    return retval
+
+    #currently relying on the read_thread to maintain synchronization
+  def send_message(self,msg):
+    retval = 0
+    thismsg = bytes(msg)
+    chksum = struct.pack('b',checksum(thismsg))
+    thismsg += chksum
+    with self.buslock:
+      retval = self._sport.write(thismsg)
+      self._sport.flushInput()#solve "echo" problem
+    return retval
+     
+  def __del__(self):
+    self.r_proc.terminate()
+
+
+if __name__ == "__main__":
+  thisport = J1708("/dev/ttyO2")
+  
+  count = 0
+  while count < 50:
+    a = thisport.read_message()
+    if a is not None:
+      print(a)
+    count += 1
+
+  thisport.send_message([0xac,0xfe,0x80,0xf0,0x17])#SecuritySetup message for CAT ECM.
+                                                   #If all is well, will see a response setup
+  count = 0
+  while count < 50:
+    a = thisport.read_message()
+    if a is not None:
+      print(a)
+    count += 1
+
+  del(thisport)
+\end{minted}
+
+
+\end{appendices}

@@ -1,0 +1,89 @@
+\chapter{Conclusions and Future Work}
+
+\section{Results}
+
+As can be seen from the diffs of Warranty Files from the various extractions, replayed data is consistent with
+traditionally extracted data in all respects, and is in fact more consistent in some areas.
+
+\subsection{Forensic Soundness}
+
+\subsubsection{NIJ's and McKemmish's Definition}
+
+The NIJ and McKemmish both address forensic soundness, though their approaches are similar enough to be
+treated together.
+
+The NIJ's definition of forensic soundness has three elements:
+
+\begin{enumerate}
+  \item Any process or procedure of collecting, transporting, or storing of digital evidence should not incur any changes to the evidence.
+  \item Only specifically trained experts should examine digital evidence.
+  \item Transparency during the operations of acquisition, transportation, and storage of the evidence should be maintained.
+\end{enumerate}
+
+McKemmish's similar definition has four:
+
+\begin{itemize}
+\item \emph{Meaning} is a term that denotes confidence in the interpretation of extracted evidence data.
+\item \emph{Error Detection} denotes processes for detecting or predicting errors in the forensic process.
+\item \emph{Transparency} means the forensic process is documented, known, and verifiable.
+\item \emph{Expertise} is required for those investigators examining digital data.
+\end{itemize}
+
+As can be seen from the verification results, the original evidence is modified less using forensic replay than it is by repeatedly
+extracting the information by traditional means. Even if no additional faults are created during a bench download, the ECM running
+time is more preserved by imaging and replaying the ECM rather than repeated downloads.
+
+The expertise requirement is not totally alleviated by the extraction and replay process; an investigator still has to know how to 
+connect to the ECM and power it up properly. However, the main advantage of the forensic extraction and replay process is that
+all information extraction is automated; no knowledge of diagnostic software or the steps required to gather pertinent crash information
+is needed. This is an advantage in a law enforcement context where training time is at a premium.
+
+By default, the CAT ECM extraction process is almost completely opaque. Unless certain data are not available on the ECM, or an error
+occurs during the download process, there is no record kept of the traffic other than its final interpretation by the maintenance
+software. As the forensic replay method is literally a recording of network traffic, this traffic can be examined after the fact
+to verify the extraction and replay process.
+
+
+\subsubsection{Casey's Definition}
+
+Eoghan Casey's definition of forensic soundness includes seven levels of forensic certainty based on certain characterics
+of the evidence and the method in which it is stored:
+
+\begin{itemize}
+\item C0: Evidence contradicts known facts
+\item C1: Evidence is highly questionable.
+\item C2: Only one source of evidence that is not protected against tampering
+\item C3: Source(s) of evidence are more difficult to tamper with but there is insufficient evidence for a firm conclusion, or unexplained inconsistencies exist in available evidence
+\item C4: Sole source evidence is protected against tampering or multiple, independent sources of evidence agree but the independent evidence is unprotected from tampering.
+\item C5: Agreement of evidence from multiple, independent sources protected from tampering, but small uncertainties exist.
+\item C6: The evidence is tamper proof and unquestionable.
+\end{itemize}
+
+The solution outlined here makes no claim about the veracity of the evidence as it relates to physical phenomena, except that it is a faithful representation of the information communicated
+by the ECM, but the other characteristics of evidence can be compared. The main difference here is that when extracting and storing evidence through traditional means, even if the
+evidence agrees with other sources it is not tamper-proof, and thus can only achieve a rating of C4 in the absolute best case (i.e. there is physical evidence corroborating the 
+digital evidence). However, with the tamper protections added by the cryptosystem presented herein, the digital evidence is rated at C4 at bare minimum, reaching C5 or C6 with corroborating
+physical evidence.
+
+\subsection{Practicality}
+
+Currently, in order to perform an evidence download from a heavy vehicle ECM, investigators require at bare minimum a laptop and a diagnostic link connector.
+If a bench download is to be performed, an engine flashing harness is required as well. Unfortunately, removing the need for an engine flashing harness is
+beyond the scope of this work. However, this replay solution represents a logistical advantage over existing methods.
+
+While the current use case still requires a laptop, it does not require any software beyond a simple web browser. This greatly simplifies software logistics, as well
+as reducing the cost of software required to conduct investigations in the field. The hardware is also no larger or heavier than existing diagnostic link connectors
+while remaining far cheaper.
+
+\section{Future Work}
+
+\subsection{Reverse-engineering Meaning}
+
+The current solution requires that investigators use the manufacturers' maintenance software to interpret the data that has been extracted and replayed from the ECM.
+While this is an improvement over the current situation in terms of ease and practicality, it is also not ideal. Future work in this area should include analyzing the
+meaning of the extracted ECM data, so that it can be analyzed and presented independently of proprietary software.
+
+\subsection{Information Verification}
+
+New work might also include verification of the interpretation of the data. Currently, it is assumed that the data reported by the ECM accurately reflect the conditions
+observed during incidents, and that the manufacturers' software accurately interprets this reported data. 

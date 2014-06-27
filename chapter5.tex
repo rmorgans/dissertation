@@ -1,0 +1,70 @@
+\chapter{Cryptographic Protection}
+
+In order to maximally ensure that the data extracted were protected from alteration,
+they needed some form of cryptographic protection that would make it impossible, or at
+least very unlikely, that the evidence could be altered in a manner that would not be
+detected.
+
+\section{Protection Requirements}
+
+\begin{enumerate}
+  \item The data must be protected from alteration
+  \item The data must be protected despite the fact that all computation takes
+        place on a device that is solely within the control of an unknown person.
+  \item The data must be secure even if a single device is compromised.
+
+\end{enumerate}
+
+\section{Protection Mechanism}
+
+In traditional computer forensic investigations, a disk image is protected by performing
+a cryptographic hash on it. Later on, the image is hashed again and the two hashes are compared
+to confirm that the image has not changed. The disk imaging process frequently takes place in an
+office, where all parties involved in the case can easily be present to ensure that the extraction
+is performed properly and no data are altered.
+
+In the case of ECM data records, however, the use case is somewhat different. The data are frequently
+extracted in remote locations where it is not feasible to have all parties to the case present. Therefore,
+the individual extracting the information has total access to the information being extracted, likely for
+a significant length of time. In this case, hashing alone may not offer the required protection as the data
+may just be altered and the hash recomputed. While this is also a risk in hard drive extractions, the possibility
+of having all parties present mitigates that somewhat.
+
+Rather than attempting to protect the data from alteration, which is practically impossible with the device
+in the physical control of a potentially malicious actor, the solution arrived at is to strongly encrypt
+the data instead. If the data are strongly encrypted, while altering the data may be possible, 
+\emph{meaningfully} altering the data is impossible. By ensuring that an attacker will gain nothing by
+altering the data, the data are effectively prevented from being altered.
+
+\section{Cryptosystem}
+
+While strongly encrypting the data protects it from alteration, encrypting the data on a remote device in such
+a way that the key is not discovered is a non-trivial exercise. The following encryption algorithm was developed
+to perform this task:
+
+\begin{enumerate}
+  \item A nonce, to be used as a symmetric key, is randomly generated.
+  \item The nonce is used to encrypt the data.
+  \item A RSA public key, stored on the device, is used to encrypt the key.
+  \item The encrypted key is stored alongside the encrypted disk image.
+  \item Later, the RSA private key, stored with a trusted third party, is
+        used to decrypt the symmetric key, which is then used to decrypt
+        the data.
+\end{enumerate}
+
+This is an example of a hybrid cryptosystem as described in \cite{cramer2004}. Cramer and Shoup prove that a hybrid cryptosystem of
+this type is secure so long as the underlying algorithms are secure, and the padding scheme used for encrypting the key is secure.
+
+\section{Cryptosystem Implementation}
+
+While the general cryptosystem is agnostic in terms of the actual algorithms used, a practical implementation requires specific
+algorithms to be chosen.
+
+The symmetric algorithm chosen to protect the data is AES-128, as the AES algorithm is the industry standard symmetric encryption
+algorithm, and it is currently believed to be secure. The 128-bit key length was chosen because of breaks discovered in the 256-bit
+key length.\cite{Biryukov2009}
+
+The cryptographic hash function chosen is SHA-256. While a longer hash value may yield better security, a longer hash may also make
+it more difficult to write down a hash value for an investigator in the field. SHA-2 was chosen over SHA-1 because of the widely-published
+attacks on SHA-1.
+

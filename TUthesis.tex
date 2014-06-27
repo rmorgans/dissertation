@@ -79,6 +79,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage[toc,page]{appendix}
+\usepackage{minted}
 %
 % Use \pdftrue if your are using PDFLaTeX and
 % use \pdffalse if your are using LaTeX
@@ -108,7 +110,7 @@
 %\usepackage{tikz}
 %\usetikzlibrary{shapes,arrows}
 
-\includeonly{chapter1,chapter2,chapter3,chapter4,chapter5} %
+\includeonly{chapter1,chapter2,chapter3,chapter4,chapter5,chapter6,Appendices} %
 
 \begin{document}
 
@@ -189,12 +191,9 @@
 %
 
 
-This material is based on research sponsored by DARPA under agreement number 
-FA8750-09-1-0208. The U.S. Government is authorized to reproduce and distribute 
-reprints for Governmental purposes notwithstanding any copyright notation 
-thereon. The views and conclusions contained herein are those of the authors and
-should not be interpreted as necessarily representing the official policies or 
-endorsements, either expressed or implied, or DARPA or the U.S. Government.
+Portions of this project were supported by Award No. 2010-DN-BX-K215 awarded by the National Institute of Justice, 
+Office of Justice Programs, U.S. Department of Justice. The opinions, findings, and conclusions or recommendations 
+expressed in this document are those of the author(s) and do not necessarily reflect those of the Department of Justice.
   
 \afteracknowledgementsp
 
@@ -207,7 +206,7 @@ endorsements, either expressed or implied, or DARPA or the U.S. Government.
 \include{chapter3}
 \include{chapter4}
 \include{chapter5}
-
+\include{chapter6}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % BIBLIOGRAPHY
@@ -217,13 +216,14 @@ endorsements, either expressed or implied, or DARPA or the U.S. Government.
 %\addcontentsline{toc}{section}{\contentsadj NOMENCLATURE}
 
 \bibliographyp
-\bibliography{TUthesis}
-\bibliographystyle{plain}
+\bibliography{jj-phd-proposal}
+\bibliographystyle{unsrt}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % APPENDICES AS NECESSARY
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\addcontentsline{toc}{chapter}{\protect\numberline{}{Appendices}}
 \appendixpages       % prepare for the generation of the appendices
-%\include{Appendices}
+
+\include{Appendices}
 \end{document}
