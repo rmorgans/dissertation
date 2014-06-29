@@ -1,1 +1,9 @@
 *~
+*.aux
+*.bbl
+*.blg
+*.log
+*.lof
+*.lot
+*.toc
+*.bak

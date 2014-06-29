@@ -17,13 +17,15 @@ the current methods by which data are stored are not particularly resistant to t
 
 Beginning in the early 1990s, truck engine manufacturers implemented electronic engine control in order to meet more stringent emissions
 requirements placed on large diesel vehicles. Over time, demand from fleet customers lead to implementation of data logging within these
-engine control computers, including fuel usage tracking. NHTSA then requested the engine manufacturers to investigate the implementation
+engine control computers, including fuel usage tracking and driver behavior . NHTSA then requested the engine manufacturers to investigate the implementation
 of event data recorder (EDR) functionality in heavy truck ECMs. Shortly thereafter, manufacturers began offering this functionality in their
 ECMs, first as add-on packages then as standard features.
 
 The evidence contained within the heavy truck ECMs is extracted using diagnostic software provided by the manufacturer. Some popular
-manufacturers and the associated software of forensic interest is listed below:
+manufacturers and the associated software of forensic interest is listed in Table \ref{tab:software}.
 
+\begin{table}
+\centering
 \begin{tabular}{|l|l|}
 \hline
 \emph{ECM Family} & \emph{Software}\\
@@ -44,9 +46,10 @@ Paccar & Cummins PowerSpec, Cummins Insite, or Paccar Davie\\
 \hline
 Volvo & Mack and Volvo Proprietary\\
 \hline
-
 \end{tabular}
-
+\caption{ECMs and associated software}
+\label{tab:software}
+\end{table}
 While it may be tempting to trust the interpretation of the OEM software, research has shown 
 that the interpretation of the data may be an issue. For example, in some Cummins Sudden Deceleration 
 events, speed data is reported in the report at one sample per second; however, after comparing to 
@@ -54,7 +57,7 @@ external reference measurements, it is discovered that the data actually is repo
 intervals (5 Hz)\cite{bortolin2009}. Similarly, Austin and Farrell \cite{austin2011} showed that many Snapshot records 
 from Caterpillar are reported every 0.5 seconds instead of every second as represented in the OEM software.
 
-\section{Vehicle Networks}
+\section{Heavy Vehicle Networks}
 
 In modern automobiles, the number of in-vehicle electronic devices that need to communicate with one another is increasing rapidly:
 engine control modules, anti-lock brake system modules, transmission control modules, collision detection systems, and even entertainment systems are examples of
@@ -72,14 +75,15 @@ crash information. There are two major vehicle network standards used in heavy t
 
 SAE J1708 is the older of the two major standards, having been adopted in 1986. It defines the physical layer of the network,
 with the higher layers handled by the J1587 standard. It is based upon the RS-485 standard for serial communication, converted to 
-unipolar drive.A J1708 message has a fairly straightforward format. The first byte is the message ID, or MID, which identifies the originator of the message. A
-number of data bytes, followed by a checksum byte, follows. If the vehicle is running, the total length of the data and checksum
-may not exceed 21 bytes.\cite{J1708} However, there is no upper bound on message size if the vehicle is not running. The checksum is very simple,
-calculated by taking the two's complement of the sum of the data bytes.
+unipolar drive. A J1708 message has a fairly straightforward format. The first byte is the Message Identification character
+, or MID, which identifies the originator of the message. A number of data bytes, followed by a checksum byte, follows. If the vehicle is running, 
+the total length of the data and checksum should not exceed 21 bytes\cite{J1708}. However, there is no upper bound on message size if the vehicle 
+is not running. The checksum is calculated by taking the two's complement of the sum of the data bytes.
 
-Individual data elements and their meanings are governed by the J1587 standard.\cite{J1587} This includes specific codes for individual data items, PIDs,
-and the formats for the data to which those PIDs refer. In addition to standardized definitions, the J1587 standard also allows for proprietary
-messages that are designed by individual manufacturers; those proprietary messages are frequently used by diagnostic programs.
+Individual data elements and their meanings are governed by the J1587 standard\cite{J1587}. This includes specific codes for individual data items,
+Parameter Identification characters (PIDs), and the formats for the data to which those PIDs refer. In addition to standardized definitions, 
+the J1587 standard also allows for proprietary messages that are designed by individual manufacturers; those proprietary messages are frequently used by 
+diagnostic programs.
 
 \subsubsection{Transport Layer}
 
@@ -98,7 +102,7 @@ connection, an ABORT frame is sent. The standard mandates a 60 second wait befor
 
 \subsubsection{Proprietary PID}
 
-The format of a proprietary message is fairly simple, and is detailed in <INSERT FIGURE HERE>. The first byte is the sender's MID, the second byte is the
+The format of a proprietary message is detailed in <INSERT FIGURE HERE>. The first byte is the sender's MID, the second byte is the
 proprietary extension PID (0xFE), and the third byte is the recipient's MID. Any data in the frame thereafter is defined by the manufacturer.
 
 \subsection{SAE J1939}
@@ -106,7 +110,7 @@ proprietary extension PID (0xFE), and the third byte is the recipient's MID. Any
 SAE J1939\cite{J1939-71} is the newer standard, adopted in the year 2000. The physical layer is based on the CAN bus standard developed by Bosch, which is widely in use
 in passenger vehicles as well as industrial control applications. The CAN bus standard provides many improvements over the J1708 physical layer,
 including more advanced error-checking using CRCs instead of a simple checksum and improved access control on the bus. Unlike the CAN bus commonly used in
-passenger vehicles, the J1939 standard uses a 250K baud CAN connection instead of 500K, reflecting the harsher environment of a heavy truck.
+passenger vehicles, the J1939 standard uses a 250K baud CAN connection.
 
 The J1939 standard is divided into many documents, as it is much broader in scope than its predecessors. It not only describes standardized
 message formats for vehicle bus information, but also specifies a transport-layer protocol for transmitting long messages, protocols for
