@@ -1,1 +1,13 @@
-1. 
+1. Talk about packed PIDs on page 4
+2. DDEC V example on page 4
+3. Proprietary message figure on page 5
+4. DDEC V clock setting example on page 5
+5. Diagram of the OSI model on page 5
+6. Find and cite J1939-13
+7. Discussion of our paper in "shortcomings of current practices" section
+8. Add related work section, our paper + Messerschmidt et al
+9. DDEC reports forged speed example on p. 13
+10. Figure out what "knowledge" I was talking about on p 15
+11.explain SHA-256 choice on p 15
+12. Add summary of requirements and block diagram on p 16.
+

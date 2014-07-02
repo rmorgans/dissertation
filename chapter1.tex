@@ -311,7 +311,7 @@ the Vehicle Diagnostic Adapter (VDA) is faithfully sending data from the vehicle
 While verifying the correct internal functioning of heavy truck ECMs is beyond the scope of this paper, the fidelity of data transmitted across the various networks (CAN bus, serial 
 bus and USB) can be easily verified. Both protocols make use of error-correcting codes that detect transmission errors with very high reliability; for example, the CAN 
 Cyclic Redundancy Check that is defined in the CAN standard process and detects all errors from 1 to 5 bits in the data frame, and only fails to detect 0.00018\% of 6-bit 
-errors in a CAN frame\cite{koopman2004}. The represents a level of certainty that would take many years to experimentally verify because the likelihood of having an error and not knowing 
+errors in a CAN frame\cite{koopman2004}. This represents a level of certainty that would take many years to experimentally verify because the likelihood of having an error and not knowing 
 it is so low.
 
 \section{Protocols}
@@ -333,8 +333,8 @@ the extracted truck evidence data to ensure that it has not been altered.
 Ideally, a forensic solution would allow the evidence to be preserved indefinitely. While hard disks are fairly inert when not used, heavy truck ECMs are actual computers that 
 have some volatile data elements. One example is the ECM's system clock.
 
-Some of the data on heavy truck ECMs is volatile, meaning that it requires a continuous supply of electrical power to avoid being deleted. One important example is the on-board 
-system clock, which is important to investigators because it correlates with the timestamps associated with incident records. An exemplar circuit, shown in figure \ref{fig:clockbatt},is based around 
+Volatile clock data requires a continuous supply of electrical power to avoid being deleted. The on-board 
+system clock is important to investigators because it correlates with the timestamps associated with incident records. An exemplar circuit, shown in Figure \ref{fig:clockbatt}, is based around 
 the EM Micro V3020, as used in several Detroit Diesel ECMs.  It is important that the actual on-board system clock be preserved, because the system clock is not necessarily synched 
 up with standard times and the offset from the standard time must be recorded at the time of investigation.
 
