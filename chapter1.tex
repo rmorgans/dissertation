@@ -120,15 +120,16 @@ to the manufacturer. As with J1708, diagnostic software makes heavy use of propr
 \section{Diagnostic Link Connector Hardware and Software}
 
 Engine control modules communicate over vehicle-specific networks, so diagnostic software requires a device that can mediate between
-vehicle networks and interfaces on desktop computers, such as RS-232 or USB. Those devices are known as Diagnostic Link Connectors, or DLCs.
+vehicle networks and interfaces on desktop computers, such as RS-232 or USB. Those devices are known as Diagnostic Link Connectors (DLCs)..
 They connect to a computer via a common interface and translate data to and from J1708, J1939, CAN, and other standards. During normal
-operation, a DLC is connected to the in-vehicle network via a diagnostic port in the cab, either a 6-pin or 9-pin Deutsch connector.
+operation, a DLC is connected to the in-vehicle network via a diagnostic port in the cab, either a 6-pin or 9-pin SAE J1939-13 connector,
+also known as a Deutsch connector.
 
 The standardization of heavy truck communication has allowed for enhanced interoperation between different brands of products, and DLC
-standardization is no different. All DLC manufacturers' drivers must comply with an interface standard dictated by the American Trucking Association's (ATA)
+standardization is no different. All DLC manufacturers' drivers generally comply with an interface standard dictated by the American Trucking Association's (ATA)
 Technical Maintenance Council (TMC), known as TMC RP1210\cite{RP1210}. The RP1210 interface specifies a number of functions that compliant drivers must export,
 including function names and formats for arguments. This allows a diagnostic program to utilize any device from any manufacturer. A diagram of the relationship between
-the RP1210 interface, the drivers, and device itself is given in figure \ref{fig:rp1210}.
+the RP1210 interface, the drivers, and device itself is given in Figure \ref{fig:rp1210}.
 
 \begin{figure}[h]
   \centering
@@ -156,10 +157,10 @@ As mentioned previously, the information is typically downloaded using the engin
 for diagnostic software is connecting to a diagnostic port in the cab of the truck using a diagnostic link connector, and accessing the desired
 information with the maintenance software.
 
-However, extracting crash information is not a normal use case. Because the truck has been in a high speed collision, the electrical connection
+However, extracting crash information is not a normal use case. If the truck has been in a high speed collision, the electrical connection
 between the cab and the engine may have been severed, or the cab itself may be physically inaccessable. In these cases, the engine control module
 must be removed and analyzed separately. This is performed either by placing the ECM in a donor vehicle identical to the one in the crash, or
-by connecting to the ECM directly using the manufacturer's engine flashing harness. A bench download of a Cummins ECM is shown in figure \ref{fig:cumminsbench}.
+by connecting to the ECM directly using the manufacturer's engine flashing harness. A bench download of a Cummins ECM is shown in Figure \ref{fig:cumminsbench}.
 
 Whatever method was used to connect to the ECM, the investigator then proceeds to extract the information using the manufacturer's diagnostic
 software. This includes event data from the crash itself, mechanical fault information, engine tuning parameters, and driver behavior information.
@@ -169,14 +170,14 @@ removable media and produced to the client.
 
 \subsection{For Contrast: Hard Disk Forensics}
 
-In order to put current evidence handling practices for ECMs in the context of digital forensics in general, here the evidence extraction
-procedures for hard disk drives is briefly explained. A more thorough treatment of this subject is given in \cite{carrier2005}.
+In order to put current evidence handling practices for ECMs in the context of digital forensics in general, the evidence extraction
+procedures for hard disk drives is briefly explained. A more thorough treatment of this subject is given in Ref \cite{carrier2005}.
 
 Evidence disk drives are typically \emph{imaged}; that is, data is copied off the drive in the most raw form available from outside
 the drive itself. The image is nothing more than a string of bits that have been copied sequentially from the disk drive. It includes
 partition tables, filesystem metadata, deleted files, and more.
 
-Devices called \emph{write blockers} are used to ensure the integrity of the evidence drive. They mediate the connection between the
+Devices called \emph{write blockers} are used to ensure the integrity of the evidence drive\cite{carrier2005}. They mediate the connection between the
 drive and the computer that is imaging it, and any write commands originating from the computer are not forwarded on to the drive.
 This prevents any accidental writes caused by investigator mistakes, automatic attempts by operating systems to mount file systems, etc.
 Furthermore, the original disk is rarely accessed after the initial extraction, as all subsequent analysis is performed on the image.
@@ -199,10 +200,12 @@ While ECMs may not have keyboards and monitors, they still are computers and hav
 networking or communicating with external devices. As such, many of the principles from computer forensics can be applied to heavy vehicle ECMs.
 
 The first litmus test that any forensic methodology must pass is the rules of evidence for the legal system in which it is used. Here, we will
-focus on the laws of the United States. The two primary standards to which evidence is held in that country are the Daubert standard, established
+focus on the laws of the United States. The two primary standards to which evidence is held in the US are the Daubert standard, established
 in the case \emph{Daubert v Merrell Dow Pharmaceuticals}, and the Federal Rules of Evidence. A review of the rules of evidence as they relate to 
-digital forensics may be found in \cite{meyers2005}.
+digital forensics may be found in \cite{meyers2005}, and are summarized in Figures \ref{fig:ch1daubert} and \ref{fig:ch1fed}. Any forensic
+evidence must meet these standards in order to be admissible.
 
+\begin{figure}[h]
 \begin{enumerate}
   \item Testimony must be relevant and reliable
   \item Judges have the task of ensuring that expert testimony rests on a reliable
@@ -211,12 +214,19 @@ digital forensics may be found in \cite{meyers2005}.
         rates, and acceptibility in the relevant scientific community, may prove helpful
         in determining reliability of forensic testimony.
 \end{enumerate}
+\caption{Summary of relevant criteria from \emph{Daubert}}
+\label{fig:ch1daubert}
+\end{figure}
 
+\begin{figure}[h]
 \begin{enumerate}
   \item Method can be and has been tested
   \item Method has been subjected to peer review or publication.
   \item Method has a known error rate
 \end{enumerate}
+\caption{Summary of relevant criteria from the Federal Rules of Evidence}
+\label{ref:ch1fed}
+\end{figure}
 
 In addition to the general rules of evidence, the digital forensics literature contains many attempts to quantify the concept of forensic soundness.
 A Special Report issued by the National Institute for Justice on Electronic Crime Scene Investigation \cite{NIJ2008} highlights the following basic forensic 
@@ -268,10 +278,12 @@ repeatable, and verifiable manner that alters or destroys as little data as poss
 be measures taken to ensure that the evidence has not been tampered with.
 
 Unfortunately, current practices fail to meet these standards in several respects. First and foremost is that evidence extractions cannot be relied upon to leave the data unaltered.
-Some engine maintainance software, by default, clears diagnostic fault codes after they are extracted from the engine. While this is desireable behavior for the software's typical
+Some engine maintainance software can, by default, clear trip data after they are extracted from the engine. While this may be desireable behavior for the software's typical
 use case, in a forensic context it is unacceptable. In addition, if a bench download is being performed, the ECM is disconnected from all of the various sytems it was designed to monitor,
-causing spurious fault codes to be created. With some manufacturers' products, especially Caterpillar, these can overwrite legitimate fault codes. The damage is made worse when
-repeated downloads are conducted.
+causing spurious fault codes to be created. With some manufacturers' products, especially Caterpillar, these can overwrite fault codes of interest in a crash investigation. 
+The damage is made worse when repeated downloads are conducted.
+
+In reference \cite{Johnson2014}, the authors describe the current shortcomings of heavy truck ECM forensics.........
 
 In addition to data extraction, current practices lack in the forensic soundness of the storage of data as well. No measures are taken to ensure that data have not been tampered
 with. Data export formats, typically plaintext HTML or PDF documents, can easily be altered with readily-available software. Some manufacturers' native file formats are encrypted
@@ -280,6 +292,8 @@ Once decrypted, these files can be altered to remove evidence and re-encrypted e
 
 Due to the potential for destruction of the source evidence and alteration of extracted data, it appears that current practice fails to pass the litmus test of forensic soundness
 as currently accepted in the digital forensics community.
+
+
 
 \chapter{Requirements of a Solution}
 
