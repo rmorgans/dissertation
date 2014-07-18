@@ -6,7 +6,7 @@ is performed on this disk image instead of the original disk, so as to alter the
 little as possible.
 
 The goal was to extend this concept to truck ECMs: the information would be extracted exactly one time, and then
-replayed upon further analysis. The replay traffic information would be stored securely to prevent malicious tampering
+replayed for further analysis. The replay traffic information would be stored securely to prevent malicious tampering
 or accidental alteration.
 
 \section{Software Requirements}
@@ -28,13 +28,13 @@ supporting additional ECMs.
 The largest difference between the proposed extraction replay method and a forensic disk extraction is obviously
 the amount of information extracted. When a disk is imaged, the entire physical contents of the disk (except for
 any blocks hidden by a Dynamic Drive Overlay or a Host Protected Area) are extracted. However, a replay of a
-software extraction only extracts the information normally accessed during that software extraction. It is possible
+software extraction only extracts the information normally accessed during that data  extraction. It is possible
 that some relevant information exists on the ECM that is not extracted.
 
 Another difference is that protocols for accessing hard disks are standardized, so one method can be reasonably expected
-to work reliably across all commercially available hard disks. ECMs, however, are acessed with proprietary protocols that
-vary from manufacturer to manufacturer. Therefore, each individual manufacturer that will be supported requires the
-reverse-engineering of that manufacturer's proprietary protocol extensions.
+to work reliably across all commercially available hard disks. ECM data, however, are acessed with proprietary protocols,
+that vary from manufacturer to manufacturer, over standard networks. 
+Therefore, each individual manufacturer that will be supported requires understanding of the  manufacturer's proprietary protocol extensions.
 
 \section{Recording an extraction}
 
@@ -56,13 +56,14 @@ this hardware must be able to record both protocols.
 
 Secondly, some meaning is lost. Applications typically use RP1210\_SendCommand calls to filter out broadcast communications
 or other irrelevant messsages. Observation strictly at the network level does not provide any clues as to which messages
-the application might be filtering, so important messages must be filtered out manually.
+the application might be filtering, so unimportant messages must be filtered out manually.
 
 \subsection{RP1210 Recording}
 
 An alternate method of recording information extraction is to record calls made to the RP1210 drivers
 by the maintenance software. This had the advantage of not requiring additional hardware to 
-record network traffic, and to abstract away the details of transport-layer operations of J1939.
+record network traffic, and to abstract away the details of transport-layer operations of J1939, though it does
+still require a Diagnostic Link Connector.
 
 Recording calls made to these RP1210 drivers was accomplished using a technique called API hooking\cite{Berdajs2010}.
 A custom lightweight debugger was written using the PyDBG tool. Upon attaching the debugger to the software
@@ -81,7 +82,7 @@ When execution hits one of these breakpoints, the debugger reads all arguments p
 and places a breakpoint on the function's return address so that return values can be read as well. In this way, all
 messages sent to and received from the ECM are recorded by the debugging software.
 
-This approach has a considerable advantage in that it doesn't require any additional hardware. Since the price of 
+This approach has an advantage in that it doesn't require any additional hardware. Since the price of 
 commercial vehicle network loggers can reach several hundred to several thousand dollars, cost-effectiveness should
 not be overlooked. It also shows exactly which messages the application receives, which aids in determining which
 messages are important. API hooking code is included in Appendix \ref{app:trace}.
@@ -92,10 +93,6 @@ messages are important. API hooking code is included in Appendix \ref{app:trace}
   \caption{Information Boundaries for Recording}
   \label{fig:infoboundaries}
 \end{figure}
-
-\subsection{Recording Broadcast Data}
-
-
 
 \section{Replaying an Extraction}
 
@@ -125,4 +122,4 @@ The solution arrived at uses two separate threads of control, one handling J1708
 handling J1939 communications. Each has its own protocol-specific response queue, though the two queues are both
 stored in the same file for evidence storage and encryption.
 
-\subsection{Replaying Broadcast Data}
+

@@ -16,7 +16,7 @@ A different solution was required, and the following requirements were arrived a
   \item It must be capable of communicating using heavy truck network protocols.
 \end{enumerate}
 
-\section{Hardware Platform}
+\section{Hardware Platform Implementation}
 
 \subsection{Computer Hardware}
 
@@ -48,8 +48,8 @@ with little to no modification.
 
 \section{Custom Cape}
 
-As the currently available commercial options did not allow for communicating both over J1708 and J1939 networks, a custom
-hardware solution was required. A custom cape was designed for heavy vehicle communications. A schematic is included in 
+As the currently available commercial options for RS-485 did not allow for communicating both over J1708 and J1939 networks, a custom
+hardware solution was required. A custom cape was designed for heavy vehicle communications based on J1708\cite{J1708}. A schematic is included in 
 Appendex <include appendix label here>
 
 The J1939 network interface required CAN transceiver hardware. The BeagleBone includes CAN hardware on the board, with access

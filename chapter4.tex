@@ -1,7 +1,7 @@
 \chapter{Case Study: Caterpillar}
 
-This approach was tested against ECMs manufactured by Caterpillar, inc. This manufacturer was
-chosen for several reasons. Firstly, the typical extraction process is long and tedious. 
+The approach described in Chapter 3 was tested against ECMs manufactured by Caterpillar, inc. This manufacturer was
+chosen for several reasons. Firstly, the typical extraction process is long and tedious, and requires many screenshots to capture all the data. 
 Secondly, as will be explained shortly, the proprietary communications protocol used
 by Caterpillar is encrypted in such a way that implementing a replay mechanism is challenging.
 
@@ -28,11 +28,15 @@ used.
 
 As the CAT ET software is written using Microsoft's .NET framework, the software was decompiled
 using JetBrains Software's dotPeek .NET decompiling tool. After some exploration of the code base,
-the following list of proprietary J1708 PIDs was found:
+the list of proprietary J1708 PIDs shown in Table \ref{fig:catet} was found.
 
+\begin{figure}[h]
+\centering
 \begin{table}
  \begin{center}
    \begin{tabular}{|c|c|}
+    \hline
+    Opcode & Function \\
     \hline
     0x70 & ReadRequest \\
     \hline
@@ -56,6 +60,9 @@ the following list of proprietary J1708 PIDs was found:
 
  \end{center}
 \end{table}
+\caption{Caterpillar ATA Function Codes}
+\label{fig:catet}
+\end{figure}
 
 The names of the functions obviously suggest that much of the message traffic is encrypted. Further analysis of the
 decompiled code, and the disassembly of a native DLL,  revealed the following system:
@@ -90,9 +97,9 @@ decompiled code, and the disassembly of a native DLL,  revealed the following sy
 
 Now that the algorithm that encrypted ECM communications was known, the information contained in those
 messages could be observed to determine how that information should be extracted and replayed. The
-API hooking tool described in an earlier chapter was extended to decrypt ECM communications on-the-fly
+API hooking tool described in Chapter 3 was extended to decrypt ECM communications on-the-fly
 and log them when they were intercepted. It was discovered that the protocols followed the format depicted
-in figure \ref{fig:ataprotocol}
+in Figure \ref{fig:ataprotocol}
 
 \begin{figure}[h]
   \centering
@@ -112,10 +119,6 @@ It should be noted that the storage format preserves the opcode of the message. 
 responses with matching PIDs were recorded in the key-value pair. It was observed that some responses were split over
 several messages, so this was accounted for in the extraction software.
 
-\section{Traffic Replay}
-
-
-
 \section{Verification}
 
 In order to ensure that the method of information extraction was reliable, replays from the ECM were tested against
@@ -123,7 +126,7 @@ actual extractions from CAT ECMs.
 
 \subsection{Procedure}
 
-The ECMs tested were evidence ECMs that were already in an accident, and thus had been pre-populated with data.
+The ECMs tested were evidence ECMs that were already used, and thus had been pre-populated with data.
 The verification procedure was designed to determine the fidelity of the information replayed, as well as the
 consistency of multiple replays of recorded data as compared to the consistency of multiple downloads of an
 evidence ECM. The test procedure also aimed to test the generality of the specific ECM replay method derived
@@ -139,7 +142,7 @@ for Caterpillar ECMs by performing the same test against multiple ECMs.
 \begin{figure}[h]
   \centering
   \includegraphics[scale=.2]{cat-ecm-2}
-  \caption{Second test ECM}
+  \caption{Second test ECM, a CAT ADEM IV}
   \label{fig:cat-ecm-2}
 \end{figure}
 
@@ -147,7 +150,7 @@ for Caterpillar ECMs by performing the same test against multiple ECMs.
 The steps of the test procedure were as follows:
 
 \begin{enumerate}
-  \item Perform one extraction of test ECM according to checklist. Record API calls. Save Warranty Report information and record snapshot information.
+  \item Perform one extraction of test ECM according to checklist while recording API calls. Save Warranty Report information and record snapshot information.
   \item Repeat step one twice more, each time saving Warranty Reports and recording snapshots.
   \item Extract ECM data using logged RP1210 calls obtained in step 1.
   \item Perform 3 replayed extractions, using data extracted in step 3.
@@ -156,9 +159,9 @@ The steps of the test procedure were as follows:
   \item Compare consistency of ECM extractions and replayed extractions.
 \end{enumerate}
 
-As snapshot data are typically recorded manually in practice, these comparisons were carried out by hand. Warranty report information, however,
+As snapshot data can be recorded manually, these comparisons were carried out by hand. Warranty report information, however,
 is stored in a plain-text XML format. Accordingly, the data contained in these files could be compared using a suite of tools developed
-by Adrian Mouat\cite{Mouat2002} for XML diffing and patching.
+by Adrian Mouat\cite{Mouat2002} for XML comparison.
 
 \subsection{Results}
 

@@ -1,17 +1,15 @@
 \chapter{Cryptographic Protection}
 
-In order to maximally ensure that the data extracted were protected from alteration,
+To maximally ensure the data extracted are protected from alteration,
 they needed some form of cryptographic protection that would make it impossible, or at
 least very unlikely, that the evidence could be altered in a manner that would not be
-detected.
-
-\section{Protection Requirements}
+detected. The protection requirements are as follows:
 
 \begin{enumerate}
   \item The data must be protected from alteration
   \item The data must be protected despite the fact that all computation takes
         place on a device that is solely within the control of an unknown person.
-  \item The data must be secure even if a single device is compromised.
+  \item Others' data must be secure even if a single device is compromised.
 
 \end{enumerate}
 
@@ -31,7 +29,7 @@ may just be altered and the hash recomputed. While this is also a risk in hard d
 of having all parties present mitigates that somewhat.
 
 Rather than attempting to protect the data from alteration, which is practically impossible with the device
-in the physical control of a potentially malicious actor, the solution arrived at is to strongly encrypt
+in the physical control of a potentially malicious actor, the solution is to strongly encrypt
 the data instead. If the data are strongly encrypted, while altering the data may be possible, 
 \emph{meaningfully} altering the data is impossible. By ensuring that an attacker will gain nothing by
 altering the data, the data are effectively prevented from being altered.
@@ -45,7 +43,7 @@ to perform this task:
 \begin{enumerate}
   \item A nonce, to be used as a symmetric key, is randomly generated.
   \item The nonce is used to encrypt the data.
-  \item A RSA public key, stored on the device, is used to encrypt the key.
+  \item A public key, stored on the device, is used to encrypt the key.
   \item The encrypted key is stored alongside the encrypted disk image.
   \item Later, the RSA private key, stored with a trusted third party, is
         used to decrypt the symmetric key, which is then used to decrypt
@@ -62,7 +60,7 @@ algorithms to be chosen.
 
 The symmetric algorithm chosen to protect the data is AES-128, as the AES algorithm is the industry standard symmetric encryption
 algorithm, and it is currently believed to be secure. The 128-bit key length was chosen because of breaks discovered in the 256-bit
-key length.\cite{Biryukov2009}
+key length\cite{Biryukov2009}.
 
 The cryptographic hash function chosen is SHA-256. While a longer hash value may yield better security, a longer hash may also make
 it more difficult to write down a hash value for an investigator in the field. SHA-2 was chosen over SHA-1 because of the widely-published

@@ -10,4 +10,7 @@
 10. Figure out what "knowledge" I was talking about on p 15
 11.explain SHA-256 choice on p 15
 12. Add summary of requirements and block diagram on p 16.
-
+13. Change "record here" figure in chapter2.tex to say "diagnostic software" instead of "CAT ET"
+14. Find citation for BeagleBone that isn't Beagleboard.org, 1st page of chapter3.tex
+15. Put cape schematic in appendix, reference in hardware chapter.
+16. 
