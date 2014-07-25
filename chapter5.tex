@@ -64,5 +64,7 @@ key length\cite{Biryukov2009}.
 
 The cryptographic hash function chosen is SHA-256. While a longer hash value may yield better security, a longer hash may also make
 it more difficult to write down a hash value for an investigator in the field. SHA-2 was chosen over SHA-1 because of the widely-published
-attacks on SHA-1.
+attacks on SHA-1\cite{Manuel2011}.
+
+In keeping with current security best practices, the symmetric keys are padded according to the PKCS\#1-OAEP standard before encryption\cite{Bellare1995}.
 

@@ -21,7 +21,7 @@ A different solution was required, and the following requirements were arrived a
 \subsection{Computer Hardware}
 
 The replay mechanism hardware is built around a BeagleBone, a commercially available ARM-based miniature computer produced
-by Texas Instruments. The most recent iteration of the design, the BeagleBone Black, retails for roughly \$45 and has a 1GHz ARM
+by Texas Instruments\cite{BeagleBone}. The most recent iteration of the design, the BeagleBone Black, retails for roughly \$45 and has a 1GHz ARM
 processor, 512MB of RAM, and 4GB of onboard flash storage. Weighing just a few ounces, it meets cost-effectiveness and portabilty
 requirements.
 
@@ -50,7 +50,7 @@ with little to no modification.
 
 As the currently available commercial options for RS-485 did not allow for communicating both over J1708 and J1939 networks, a custom
 hardware solution was required. A custom cape was designed for heavy vehicle communications based on J1708\cite{J1708}. A schematic is included in 
-Appendex <include appendix label here>
+Appendex \ref{app:schematic}.
 
 The J1939 network interface required CAN transceiver hardware. The BeagleBone includes CAN hardware on the board, with access
 to the module provided on pins <pins>. Likewise, the J1708/J1587 stack required J1708 hardware. An RS485 transceiver chip from TI

@@ -1,6 +1,6 @@
 \chapter{Case Study: Caterpillar}
 
-The approach described in Chapter 3 was tested against ECMs manufactured by Caterpillar, inc. This manufacturer was
+The approach described in Chapter 3 was tested against ECMs manufactured by Caterpillar, Inc. This manufacturer was
 chosen for several reasons. Firstly, the typical extraction process is long and tedious, and requires many screenshots to capture all the data. 
 Secondly, as will be explained shortly, the proprietary communications protocol used
 by Caterpillar is encrypted in such a way that implementing a replay mechanism is challenging.
@@ -26,14 +26,12 @@ used.
 
 \subsection{Static Analysis}
 
-As the CAT ET software is written using Microsoft's .NET framework, the software was decompiled
+As most of the CAT ET software is written using Microsoft's .NET framework, the software was decompiled
 using JetBrains Software's dotPeek .NET decompiling tool. After some exploration of the code base,
-the list of proprietary J1708 PIDs shown in Table \ref{fig:catet} was found.
+the list of proprietary J1708 PIDs shown in Table \ref{tab:catet} was found.
 
-\begin{figure}[h]
-\centering
-\begin{table}
- \begin{center}
+\begin{table}[h]
+  \centering
    \begin{tabular}{|c|c|}
     \hline
     Opcode & Function \\
@@ -58,11 +56,9 @@ the list of proprietary J1708 PIDs shown in Table \ref{fig:catet} was found.
     \hline
    \end{tabular}
 
- \end{center}
-\end{table}
 \caption{Caterpillar ATA Function Codes}
-\label{fig:catet}
-\end{figure}
+\label{tab:catet}
+\end{table}
 
 The names of the functions obviously suggest that much of the message traffic is encrypted. Further analysis of the
 decompiled code, and the disassembly of a native DLL,  revealed the following system:
