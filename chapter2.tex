@@ -1,5 +1,56 @@
-\chapter{ECM Replay Software}
+\chapter{The proposed method}
 
+This chapter outlines the general proposed method for forensic data extraction from ECMs. It outlines the requirements that such a solution must meet,
+and then describes a general method for meeting those requirements. Specifics of the implementation will be laid out in later chapters.
+
+\section{Requirements}
+
+\subsection{Baseline of Trust}
+
+In order to make a full accounting of potential sources of error in any forensic process, it is important to examine the assumptions that the process requires. Standard methods of 
+truck evidence extraction assume that the ECM is reporting data faithfully, that the vehicle network is accurately transmitting the communication to and from the ECM. It also assumes 
+the Vehicle Diagnostic Adapter (VDA) is faithfully sending data from the vehicle network to the RP1210 library that is called by the OEM software.
+
+While verifying the correct internal functioning of heavy truck ECMs is beyond the scope of this research, the fidelity of data transmitted across the various networks (CAN bus, serial 
+bus and USB) can be easily verified. Both protocols make use of error-correcting codes that detect transmission errors with very high reliability; for example, the CAN 
+cyclic redundancy check that is defined in the CAN standard detects all errors from 1 to 5 bits in the data frame, and will detect all but 0.00018\% of 6-bit 
+errors in a CAN frame\cite{koopman2004}. This represents a level of certainty that would take many years to experimentally verify because the likelihood of having an undetected error is so low.
+
+\subsection{Protocols}
+
+Because typical ECM data extractions occur over vehicle networks, analysis of their forensic soundness requires consideration of the specifications
+of protocols  used for communication over those networks.
+In heavy trucks, the networking protocols enumerate and define the various data that are transmitted over the in-vehicle network, which in turn provides clues as to the nature 
+of the data present in the ECM. For example, a data type that is rounded to the nearest power of ten (186 rounded to 190, for example) when transmitted on the network might 
+indicate that the value stored to and reported by the ECM is rounded in a similar fashion.
+
+\subsection{Authentication}
+
+A cryptographic hash function is an algorithm that generates a “fingerprint” of a given input. This fingerprint is generated in such a way that if a single bit of the input changes, 
+roughly half the bits in the output file are altered\cite{schneier1996}. As such, they are commonly used to confirm that data have not been altered. A forensically sound tool should use a hash of 
+the extracted truck evidence data to ensure that it has not been altered.
+
+\subsection{Evidence Preservation}
+
+Ideally, a forensic solution would allow the evidence to be preserved indefinitely. While hard disks are fairly inert when not used, heavy truck ECMs are actual computers that 
+have some volatile data elements. One example is the ECM's system clock.
+
+Volatile clock data requires a continuous supply of electrical power to avoid being deleted. The on-board 
+system clock is important to investigators because it correlates with the timestamps associated with incident records. An exemplar circuit, shown in Figure \ref{fig:clockbatt}, is based around 
+the EM Micro V3020 realtime clock, as used in several Detroit Diesel ECMs.  It is important that the actual on-board system clock be preserved, because the system clock is not necessarily synched 
+up with standard times and the offset from the standard time must be recorded at the time of investigation.
+
+Though the batteries in ECMs are large, and power drains slowly over time, this is an example of potentially critical information that can be lost if not extracted and preserved.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics{clockbatt}
+  \caption{The real time clock of a Detroit Diesel engine controller with system battery}
+  \label{fig:clockbatt}
+
+\end{figure}
+
+\section{The Solution}
 The solution arrived at was borrowed from the world of computer forensics. In a computer forensic investigation,
 a low-level copy of the evidence drive is made; this copy is known as the ``disk image.'' Forensic analysis
 is performed on this disk image instead of the original disk, so as to alter the original source evidence as
@@ -9,117 +60,34 @@ The goal was to extend this concept to truck ECMs: the information would be extr
 replayed for further analysis. The replay traffic information would be stored securely to prevent malicious tampering
 or accidental alteration.
 
-\section{Software Requirements}
+\subsection{Software Requirements}
 
 Development of the forensic replay software requires the following steps:
 
 \begin{enumerate}
-  \item Record the original information extraction process.
-  \item Decipher any encryption or obfuscation mechanisms obscuring ECM data.
-  \item Store the evidence in a secure manner.
-  \item Respond to information requests identically to the ECM.
+  \item Record the network traffic produced by the original information extraction process. This may be done either with a vehicle
+        network traffic logger, or by logging API calls to the DLC driver.
+  \item Decipher any encryption or obfuscation mechanisms obscuring ECM data. Many manufacturers use protocols that encrypt diagnostic
+        data, and some are sufficiently well designed that the traffic cannot simply be replayed. Thus, replaying the data requires
+        that the encryption can be deciphered.
+  \item Store the evidence in a secure manner. If the evidence is stored in such a way that it can be tampered with, the integrity of
+        the evidence may be called into question. This is unacceptable in a forensic context.
+  \item Respond to information requests identically to the ECM. As the goal is to make a digital ``image'' of the ECM, the forensic system
+        must be able to recreate the same traffic that the ECM would.
 \end{enumerate}
 
 All of these would ideally be performed in a manner that is as general as possible to minimize development time
 supporting additional ECMs.
 
-\section{Comparison of method to disk imaging}
+\subsection{Comparison of method to disk imaging}
 
 The largest difference between the proposed extraction replay method and a forensic disk extraction is obviously
 the amount of information extracted. When a disk is imaged, the entire physical contents of the disk (except for
 any blocks hidden by a Dynamic Drive Overlay or a Host Protected Area) are extracted. However, a replay of a
-software extraction only extracts the information normally accessed during that data  extraction. It is possible
-that some relevant information exists on the ECM that is not extracted.
+software extraction only extracts the information normally accessed during that data  extraction. Accessing more data
+would require reading data directly from the ECM's memory chips.
 
 Another difference is that protocols for accessing hard disks are standardized, so one method can be reasonably expected
 to work reliably across all commercially available hard disks. ECM data, however, are acessed with proprietary protocols,
 that vary from manufacturer to manufacturer, over standard networks. 
 Therefore, each individual manufacturer that will be supported requires understanding of the  manufacturer's proprietary protocol extensions.
-
-\section{Recording an extraction}
-
-The first step in extracting data from an ECM was to determine how the manufacturers themselves extracted
-the desired data. Without performing extensive static or dynamic analysis of the internals of the maintenance
-software, it was determined that the best way to determine the extraction process was to record the messages
-sent by the maintenance software to the ECM. Recording these messages could take place at two information boundaries,
-the network or the diagnostic link connector driver.
-
-\subsection{Network Recording}
-
-Communication between the ECM and the maintenance software may be recorded at the network level, but this method
-has some drawbacks.
-
-First, recording traffic from the network requires additional hardware. In addition to the hardware normally required
-to connect to ECMs, network recording requires some means of physically connecting to the network. Network-logging
-hardware is also required. As it is not uncommon for ECM communications to take place over both J1708 and J1939, 
-this hardware must be able to record both protocols.
-
-Secondly, some meaning is lost. Applications typically use RP1210\_SendCommand calls to filter out broadcast communications
-or other irrelevant messsages. Observation strictly at the network level does not provide any clues as to which messages
-the application might be filtering, so unimportant messages must be filtered out manually.
-
-\subsection{RP1210 Recording}
-
-An alternate method of recording information extraction is to record calls made to the RP1210 drivers
-by the maintenance software. This had the advantage of not requiring additional hardware to 
-record network traffic, and to abstract away the details of transport-layer operations of J1939, though it does
-still require a Diagnostic Link Connector.
-
-Recording calls made to these RP1210 drivers was accomplished using a technique called API hooking\cite{Berdajs2010}.
-A custom lightweight debugger was written using the PyDBG tool. Upon attaching the debugger to the software
-in question, the debugger searches process memory for any loaded RP1210 drivers. Upon discovering a loaded RP1210
-driver module, it places breakpoints on the following RP1210 function addresses:
-
-\begin{enumerate}
-  \item RP1210\_ReadMessage
-  \item RP1210\_SendMessage
-  \item RP1210\_ClientConnect
-  \item RP1210\_SendCommand
-  \item RP1210\_ClientDisconnect
-\end{enumerate}
-
-When execution hits one of these breakpoints, the debugger reads all arguments passed to the function when it was called,
-and places a breakpoint on the function's return address so that return values can be read as well. In this way, all
-messages sent to and received from the ECM are recorded by the debugging software.
-
-This approach has an advantage in that it doesn't require any additional hardware. Since the price of 
-commercial vehicle network loggers can reach several hundred to several thousand dollars, cost-effectiveness should
-not be overlooked. It also shows exactly which messages the application receives, which aids in determining which
-messages are important. API hooking code is included in Appendix \ref{app:trace}.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[scale=0.5]{RecordPoint}
-  \caption{Information Boundaries for Recording}
-  \label{fig:infoboundaries}
-\end{figure}
-
-\section{Replaying an Extraction}
-
-In order to ensure that the method of evidence extraction was as general as possible, evidence extraction was implemented
-by simply replaying requests recorded during an actual information extraction. In the case of encrypted requests, where
-the same request may be encrypted differently depending upon details of individual sessions, a transformation function
-to decrypt the message and store it in a plaintext format needs to be specified.
-
-After each request is replayed, responses to that request are recorded. The extraction data are stored as a list of 
-key-value pairs, where the key is the request (transformed to a plaintext format, if applicable) and the value is
-a list of all messages that the ECM sends in response to that request. This list is then serialized into a format
-that can be stored in a file on disk; this file is the logical equivalent of a hard disk image.
-
-As it has been observed that requests sent to the ECM may alter the state of the ECM, the replay mechanism must
-be designed so that this is taken into account. The stored replay data are treated as a circular queue, with a current
-index maintained during the extraction. Upon receipt of a message, the index is advanced until a matching response is found.
-If responses to requests depend on earlier messages, receipt of the earlier messages will advance the index to
-the expected response.
-
-\subsection{Replaying Extracted Data}
-
-Just as a transformation function may need to be specified for extraction of encrypted information, such a transformation
-function may also need to be specified during replay. A comparison function needs to be specified, as the message format may
-preclude the use of straight comparison of request data.
-
-The solution arrived at uses two separate threads of control, one handling J1708/1587 communications and the other
-handling J1939 communications. Each has its own protocol-specific response queue, though the two queues are both
-stored in the same file for evidence storage and encryption.
-
-

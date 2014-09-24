@@ -14,3 +14,4 @@ DONE ------>13. Change "record here" figure in chapter2.tex to say "diagnostic s
 DONE-----> 14. Find citation for BeagleBone that isn't Beagleboard.org, 1st page of chapter3.tex
 DONE------>15. Put cape schematic in appendix, reference in hardware chapter.
 16. NHTSA citation pg 2
+17. Add discussion of secure nonce generation (challenges of Linux PRNG security on embedded devices)

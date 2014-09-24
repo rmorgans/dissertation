@@ -5,19 +5,21 @@ come to depend more and more heavily on electronic event data recorded on the tr
 This evidence includes speed records and other event data that can help accident reconstructionists 
 determine what transpired during the event.
 
-Like other evidence, heavy vehicle digital event data is held to a standard of forensic soundness, which is a series of principles 
-that ensure that forensic evidence is handled in a secure manner that guards against misinterpretation and alteration, whether intentional
+Like other evidence, heavy vehicle digital event data is held to a standard of forensic soundness. Forensic soundness is a series of principles 
+that ensure that forensic evidence is handled in a secure manner, guarded against misinterpretation and alteration, whether intentional
 or unintentional.
-Currently, evidence is extracted from heavy truck systems using software that was not originally designed to be 
-forensic software, and is not particularly suited to the task. While evidence can be collected using this data in a forensically sound 
-manner, doing so requires diligence on the part of the investigator and mistakes can result in evidence being dismissed. Additionally, 
-the current methods by which data are stored are not particularly resistant to tampering. 
+Currently, evidence is extracted from heavy truck systems using diagnostic software that was frequently not originally designed for forensic data extraction, 
+and is not particularly suited to the task. While evidence can be collected using this data in a forensically sound 
+manner, doing so requires diligence on the part of the investigator and mistakes can result in evidence being dismissed. For example, some software by default will
+reset trip data when an extraction is performed.
+Additionally, the current methods by which data are stored are not particularly resistant to tampering\cite{Johnson2014}. 
 
 \section{Truck ECMs and Evidence}
 
 Beginning in the early 1990s, truck engine manufacturers implemented electronic engine control in order to meet more stringent emissions
-requirements placed on large diesel vehicles. Over time, demand from fleet customers lead to implementation of data logging within these
-engine control computers, including fuel usage tracking and driver behavior. NHTSA requested the engine manufacturers to investigate the implementation
+requirements placed on large diesel vehicles\cite{NHTSA-EDR-2002}. Over time, demand from fleet customers lead to implementation of data logging within these
+engine control computers, including fuel usage tracking and driver behavior. The National Highway Traffic Safety Administration (NHTSA) 
+requested the engine manufacturers to investigate the implementation
 of event data recorder (EDR) functionality in heavy truck ECMs. Shortly thereafter, manufacturers began offering this functionality in their
 ECMs, first as add-on packages then as standard features.
 
@@ -50,7 +52,7 @@ Volvo & Mack and Volvo Proprietary\\
 \caption{ECMs and associated software}
 \label{tab:software}
 \end{table}
-While it may be tempting to trust the interpretation of the OEM software, research has shown 
+While it may be tempting to trust the interpretation of the original equipment manufacturer (OEM) software, research has shown 
 that the interpretation of the data may be an issue. For example, in some Cummins Sudden Deceleration 
 events, speed data is reported in the report at one sample per second; however, after comparing to 
 external reference measurements, it is discovered that the data actually is reported at 0.2 second 
@@ -61,8 +63,8 @@ from Caterpillar are reported every 0.5 seconds instead of every second as repre
 
 In modern automobiles, the number of in-vehicle electronic devices that need to communicate with one another has seen dramatic increases:
 engine control modules, anti-lock brake system modules, transmission control modules, collision detection systems, and even entertainment systems are examples of
-devices that need to communicate. This lead to a combinatorial explosion of communication links, necessitating a common multiple-access
-bus. Now, almost all functions in automobiles are carried out over the network. Notably, in-vehicle networking has allowed external diagnostic
+devices that need to communicate. This has lead to a combinatorial explosion of communication links, necessitating a common multiple-access
+bus. Now, almost all functions in automobiles are carried out over a network. Notably, in-vehicle networking has allowed external diagnostic
 connectors to receive diagnostic fault codes through a port in the cab.
 
 Heavy trucks are no different. Engine control computers monitor vehicle speed and enforce pre-set speed limits. They also broadcast information
@@ -86,7 +88,7 @@ Parameter Identification characters (PIDs), and the formats for the data to whic
 the J1587 standard also allows for proprietary messages that are designed by individual manufacturers; those proprietary messages are frequently used by 
 diagnostic programs.
 
-Multiple PIDs can be transmitted in the same message using ``packed PIDs.'' The message structure is shown in Figure \ref{fig:packedpids}. A PID follows the MID, follwed by
+Multiple PIDs can be transmitted in the same message using ``packed PIDs.'' The message structure is shown in Figure \ref{fig:packedpids}. A PID follows the MID, followed by
 the data corresponding to that PID. As the J1708 and J1587 standards specify the widths of these data types, another PID with its data can follow immediately
 after.
 
@@ -98,7 +100,7 @@ after.
 \end{figure}
 
 
-Standard J1708/J1587 messages are limited to 21 bytes when the engine is not running; in practice, messages longer than this are rare even if the engine
+Standard J1708/J1587 messages are limited to 21 bytes when the engine is running; in practice, messages longer than this are rare even if the engine
 is not running. To allow for the transmission of longer messages, J1587 defines a transport layer that ensures in-order delivery and reliable delivery.
 
 The J1587 transport layer is implemented using two PIDs, 0xC5 and 0xC6. PID 0xC5 is defined as the connection management PID, implementing traffic control
@@ -123,7 +125,7 @@ proprietary extension PID (0xFE), and the third byte is the recipient's MID. Any
 
 \subsection{SAE J1939}
 
-SAE J1939\cite{J1939-71} is the newer standard, adopted in the year 2000. The physical layer is based on the CAN bus standard developed by Bosch, which is widely in use
+SAE J1939\cite{J1939-71} is the newer standard, adopted in the year 2000. The physical layer is based on the CAN bus standard developed by Bosch\cite{Bosch1991}, which is widely in use
 in passenger vehicles as well as industrial control applications. The CAN bus standard provides many improvements over the J1708 physical layer,
 including more advanced error-checking using CRCs instead of a simple checksum and improved access control on the bus. Unlike the CAN bus commonly used in
 passenger vehicles, the J1939 standard uses a 250K baud CAN connection and extended IDs.
@@ -135,7 +137,7 @@ to the manufacturer. As with J1708, diagnostic software makes heavy use of propr
 
 \begin{figure}[h]
   \centering
-  \includegraphics{OSIModel}
+  \includegraphics[scale=.75]{OSIModel}
   \caption{The 7 Layer OSI Model\cite{Day1983}}
   \label{fig:osimodel}
 \end{figure}
@@ -143,9 +145,9 @@ to the manufacturer. As with J1708, diagnostic software makes heavy use of propr
 \section{Diagnostic Link Connector Hardware and Software}
 
 Engine control modules communicate over vehicle-specific networks, so diagnostic software requires a device that can mediate between
-vehicle networks and interfaces on desktop computers, such as RS-232 or USB. Those devices are known as Diagnostic Link Connectors (DLCs)..
+vehicle networks and interfaces on desktop computers, such as RS-232 or USB. Those devices are known as Diagnostic Link Connectors (DLCs).
 They connect to a computer via a common interface and translate data to and from J1708, J1939, CAN, and other standards. During normal
-operation, a DLC is connected to the in-vehicle network via a diagnostic port in the cab, either an older 6-pin or a newer 9-pin SAE J1939-13 connector,
+operation, a DLC is connected to the in-vehicle network via a diagnostic port in the cab, either an older 6-pin or a newer 9-pin SAE J1939-13 connector\cite{J1939-13},
 also known as a Deutsch connector.
 
 The standardization of heavy truck communication has allowed for enhanced interoperation between different brands of products, and DLC
@@ -194,9 +196,9 @@ removable media and produced to the client.
 \subsection{For Contrast: Hard Disk Forensics}
 
 In order to put current evidence handling practices for ECMs in the context of digital forensics in general, the evidence extraction
-procedures for hard disk drives is briefly explained. A more thorough treatment of this subject is given in Ref \cite{carrier2005}.
+procedures for hard disk drives will be briefly explained. A more thorough treatment of this subject is given by Brian Carrier in \cite{carrier2005}.
 
-Evidence disk drives are typically \emph{imaged}; that is, data is copied off the drive in the most raw form available from outside
+Evidence disk drives are typically \emph{imaged}; that is, data are copied off the drive in the most raw form available from outside
 the drive itself. The image is nothing more than a string of bits that have been copied sequentially from the disk drive. It includes
 partition tables, filesystem metadata, deleted files, and more.
 
@@ -219,18 +221,17 @@ detect any changes in the data.
 \section{Forensic Soundness}
 
 A heavy vehicle electronic control module (ECM) is a specialized process control computer that may have data of interest to an investigator. 
-While ECMs may not have keyboards and monitors, they still are computers and have central processing units, memory, storage, and a means of 
-networking or communicating with external devices. As such, many of the principles from computer forensics can be applied to heavy vehicle ECMs.
+ As such, many of the principles from computer forensics can be applied to heavy vehicle ECMs.
 
 The first litmus test that any forensic methodology must pass is the rules of evidence for the legal system in which it is used. Here, we will
 focus on the laws of the United States. The two primary standards to which evidence is held in the US are the Daubert standard, established
 in the case \emph{Daubert v Merrell Dow Pharmaceuticals}\cite{Daubert1993}, and the Federal Rules of Evidence Rule 702 on expert testimony\cite{FedRules702}. 
 A review of the rules of evidence as they relate to 
 digital forensics may be found in \cite{meyers2005}, and are summarized in the following lists. Any forensic
-evidence must meet these standards in order to be admissible.
+evidence must meet these standards in order to be admissible:
 
 \begin{figure}[h]
-\caption*{1. Summary of relevant criteria from \emph{Daubert}}
+1. Summary of relevant criteria from \emph{Daubert}
 \begin{enumerate}[(a)]
   \item Testimony must be relevant and reliable
   \item Judges have the task of ensuring that expert testimony rests on a reliable
@@ -240,12 +241,9 @@ evidence must meet these standards in order to be admissible.
         in determining reliability of forensic testimony.
 \end{enumerate}
 
-\label{fig:ch1daubert}
-\end{figure}
 
-\begin{figure}[h]
   \centering
-  \caption*{2. Summary of relevant criteria from the Federal Rules of Evidence}
+  2. Summary of relevant criteria from the Federal Rules of Evidence
 \begin{enumerate}[(a)]
   \item Method can be and has been tested
   \item Method has been subjected to peer review or publication.
@@ -271,7 +269,7 @@ including the National Institute for Standards and Technology (NIST) \cite{NIST2
 Justice (NIJ) \cite{NIJ2008}, and academic bodies like the International Organization on Computer Evidence\cite{IOCE2002}. The methods of extracting, analyzing, 
 and presenting digital evidence are forensically sound if they perform the task in a manner such that the results can be used in legal 
 proceedings with a high degree of confidence in their admissibility. The process of extracting, interpreting, and presenting evidence 
-will be referred to in this paper as the “forensic process.”
+will be referred to in this dissertation as the “forensic process.”
 
 In addition to the NIJ report, McKemmish \cite{mckemmish2008} enumerates the following components of forensic soundness:
 
@@ -294,7 +292,7 @@ Casey \cite{casey2002} defines 7 levels of certainty for digital evidence that d
 \item C6: The evidence is tamper proof and unquestionable.
 \end{itemize}
 
-While many of these levels include requirements that are encompassed by the requirements of error detection and certainty of meaning 
+While these descriptions include requirements that are encompassed by the requirements of error detection and certainty of meaning 
 specified by McKemmish, this standard includes the principle of tamper resistance. In addition to protecting the evidence from tampering, 
 a system which can demonstrate the absence of tampering also fulfills this requirement.
 
@@ -311,10 +309,10 @@ use case, in a forensic context it is unacceptable. In addition, if a bench down
 causing spurious fault codes to be created. With some manufacturers' products, especially Caterpillar, these can overwrite fault codes of interest in a crash investigation. 
 The damage is made worse when repeated downloads are conducted.
 
-In addition to data extraction, current practices lack in the forensic soundness of the storage of data as well. No measures are taken to ensure that data have not been tampered
+In addition to data extraction, current data storage practices lack forensic soundness. No measures are taken to ensure that data have not been tampered
 with. Data export formats, typically plaintext HTML or PDF documents, can easily be altered with readily-available software. Some manufacturers' native file formats are encrypted
 somewhat, though not strongly: Cummins' EIF format is simply a password-protected ZIP archive, while Detroit Diesel's Drumroll files are encrypted using a simple XOR cipher.
-Once decrypted, these files can be altered to remove evidence and re-encrypted easily.
+Once decrypted, these files can be altered to remove evidence and re-encrypted easily\cite{Johnson2014}.
 
 Due to the potential for destruction of the source evidence and alteration of extracted data, it appears that current practice fails to pass the litmus test of forensic soundness
 as currently accepted in the digital forensics community.
@@ -328,12 +326,11 @@ The literature relating to the forensics of heavy truck ECM data is relatively u
 with the accuracy of data recorded on ECMs and causes of data loss. While these works address the practical necessities of extracting data from ECMs and ensuring that the data are
 correct, they do not consider the possibility of intentional modification to data or corruption of data after it has been extracted.
 
-Reference \cite{Johnson2014} outlines the forensic soundness issues with current ECM data extraction techniques, demonstrating avenues by which data may be intentionally altered
-or unintentionally corrupted. The authors also outline the following requirements of a forensically sound ECM data extraction technique:
+Johnson et al \cite{Johnson2014} outline the forensic soundness issues with current ECM data extraction techniques, demonstrating avenues by which data may be intentionally altered or unintentionally corrupted. The authors also outline the following requirements of a forensically sound ECM data extraction technique:
 
 \begin{itemize}
   \item Data integrity
-  \item Confidence in meaning of data
+  \item Confidence in the meaning of data
   \item Error detection and mitigation
   \item Transparency and trust
 \end{itemize}
@@ -341,57 +338,4 @@ or unintentionally corrupted. The authors also outline the following requirement
 In addition to these requirements, they also give some recommendations for meeting them. These include using sensor simulators to prevent the creation of new fault codes
 after the incident, blocking commands sent by extraction software that may alter ECM data, and authentication algorithms to ensure data integrity.
 
-The contribution of this dissertation is to present a solution that meets the requirements outlined by \cite{Johnson2014}.
-
-\chapter{Requirements of a Solution}
-
-Regardless of the meaning of the digital data, it is necessary to present data in its final form in such a way that is transparent of its handling to establish trustworthiness. 
-According to the transparency principle of forensic soundness, actions taken by an investigator should be available for later examination. Additionally, any error conditions 
-encountered by the software should be recorded so that the legal weight of the evidence may be accurately considered. Audit trails are log files generated by forensic software 
-to meet these requirements, and should at least be an option in any forensic solution.
-
-\section{Baseline of Trust}
-
-In order to make a full accounting of potential sources of error in any forensic process, it is important to examine the assumptions that the process requires. Standard methods of 
-truck evidence extraction assume that the ECM is reporting data faithfully, that the vehicle network is accurately transmitting the communication to and from the ECM. It also assumes 
-the Vehicle Diagnostic Adapter (VDA) is faithfully sending data from the vehicle network to the RP1210 library that is called by the OEM software.
-
-While verifying the correct internal functioning of heavy truck ECMs is beyond the scope of this research, the fidelity of data transmitted across the various networks (CAN bus, serial 
-bus and USB) can be easily verified. Both protocols make use of error-correcting codes that detect transmission errors with very high reliability; for example, the CAN 
-Cyclic Redundancy Check that is defined in the CAN standard process and detects all errors from 1 to 5 bits in the data frame, and only fails to detect 0.00018\% of 6-bit 
-errors in a CAN frame\cite{koopman2004}. This represents a level of certainty that would take many years to experimentally verify because the likelihood of having an error and not knowing 
-it is so low.
-
-\section{Protocols}
-
-Because typical ECM data extractions occur over vehicle networks, analysis of their forensic soundness requires consideration of the specifications
-of protocols  used for communication over those networks.
-In heavy trucks, the networking protocols enumerate and define the various data that are transmitted over the in-vehicle network, which in turn provides clues as to the nature 
-of the data present in the ECM. For example, a data type that is rounded to the nearest power of ten (186 rounded to 190, for example) when transmitted on the network might 
-indicate that the value stored to and reported by the ECM is rounded in a similar fashion.
-
-\section{Authentication}
-
-A cryptographic hash function is an algorithm that generates a “fingerprint” of a given input. This fingerprint is generated in such a way that if a single bit of the input changes, 
-roughly half the bits in the output file are altered\cite{schneier1996}. As such, they are commonly used to confirm that data have not been altered. A forensically sound tool should use a hash of 
-the extracted truck evidence data to ensure that it has not been altered.
-
-\section{Evidence Preservation}
-
-Ideally, a forensic solution would allow the evidence to be preserved indefinitely. While hard disks are fairly inert when not used, heavy truck ECMs are actual computers that 
-have some volatile data elements. One example is the ECM's system clock.
-
-Volatile clock data requires a continuous supply of electrical power to avoid being deleted. The on-board 
-system clock is important to investigators because it correlates with the timestamps associated with incident records. An exemplar circuit, shown in Figure \ref{fig:clockbatt}, is based around 
-the EM Micro V3020, as used in several Detroit Diesel ECMs.  It is important that the actual on-board system clock be preserved, because the system clock is not necessarily synched 
-up with standard times and the offset from the standard time must be recorded at the time of investigation.
-
-Though the batteries in ECMs are large, and power drains slowly over time, this is an example of potentially critical information that can be lost if not extracted and preserved.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics{clockbatt}
-  \caption{The real time clock of a Detroit Diesel engine controller with system battery}
-  \label{fig:clockbatt}
-
-\end{figure}
+The contribution of this dissertation is to present a solution that meets the requirements outlined by \cite{Johnson2014}, listed above.
