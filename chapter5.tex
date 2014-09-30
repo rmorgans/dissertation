@@ -61,7 +61,7 @@ algorithms to be chosen.
 
 The symmetric algorithm chosen to protect the data is AES-128, as the AES algorithm is the industry standard symmetric encryption
 algorithm, and it is currently believed to be secure. The 128-bit key length was chosen because of breaks discovered in the 256-bit
-key length\cite{Biryukov2009}. As is standard cryptographic practice [CITATION HERE], the AES cipher is run in the Cipher Feedback (CFB)
+key length\cite{Biryukov2009}. As is standard cryptographic practice \cite{NISTSP80038A}, the AES cipher is run in the Cipher Feedback (CFB)
 operating mode to prevent frequency analysis attacks.
 
 The cryptographic hash function chosen is SHA-256. While a longer hash value may yield better security, a longer hash may also make

@@ -1,32 +1,29 @@
 \chapter{Conclusions and Future Work}
 
+\section{Contributions}
+
+The work detailed in this dissertation makes the following contributions:
+
+\begin{itemize}
+
+  \item This dissertation is the first attempt to address the digital forensic concerns raised in the
+        paper by Johnson, et al \cite{Johnson2014}. As such, it provides a framework by which future
+        forensic solutions may be evaluated.
+  \item The forensic record-replay mechanism is a forensically sound imaging technique for heavy truck ECMs.
+        No similar solution exists in the literature, other than physically opening an ECM and reading the
+        memory physically.
+  \item The cryptosystem provides a general method for preventing malicious tampering with extracted evidence,
+        no matter what evidence is being extracted by what device. This has implications for many fields other
+        than ECM extractions.
+
+\end{itemize}
+
 \section{Summary of Provided Solution}
 
 As can be seen from the diffs of Warranty Files from the various extractions, replayed data is consistent with
 traditionally extracted data in all respects, and is in fact more consistent in some areas.
 
 \subsection{Forensic Soundness}
-
-
-The NIJ and McKemmish both address forensic soundness, though their approaches are similar enough to be
-treated together.
-
-The NIJ's definition of forensic soundness has three elements:
-
-\begin{enumerate}
-  \item Any process or procedure of collecting, transporting, or storing of digital evidence should not incur any changes to the evidence.
-  \item Only specifically trained experts should examine digital evidence.
-  \item Transparency during the operations of acquisition, transportation, and storage of the evidence should be maintained.
-\end{enumerate}
-
-McKemmish's similar definition has four:
-
-\begin{itemize}
-\item \emph{Meaning} is a term that denotes confidence in the interpretation of extracted evidence data.
-\item \emph{Error Detection} denotes processes for detecting or predicting errors in the forensic process.
-\item \emph{Transparency} means the forensic process is documented, known, and verifiable.
-\item \emph{Expertise} is required for those investigators examining digital data.
-\end{itemize}
 
 As can be seen from the verification results, the original evidence is modified less using forensic replay than it is by repeatedly
 extracting the information by traditional means. Even if no additional faults are created during a bench download, the ECM running
@@ -45,17 +42,8 @@ to verify the extraction and replay process.
 Eoghan Casey's definition of forensic soundness includes seven levels of forensic certainty based on certain characteristics
 of the evidence and the method in which it is stored:
 
-\begin{itemize}
-\item C0: Evidence contradicts known facts
-\item C1: Evidence is highly questionable.
-\item C2: Only one source of evidence that is not protected against tampering
-\item C3: Source(s) of evidence are more difficult to tamper with but there is insufficient evidence for a firm conclusion, or unexplained inconsistencies exist in available evidence
-\item C4: Sole source evidence is protected against tampering or multiple, independent sources of evidence agree but the independent evidence is unprotected from tampering.
-\item C5: Agreement of evidence from multiple, independent sources protected from tampering, but small uncertainties exist.
-\item C6: The evidence is tamper proof and unquestionable.
-\end{itemize}
-
-The solution outlined herein makes no claim about the veracity of the evidence as it relates to physical phenomena, except that it is a faithful representation of the information communicated
+As to Eoghan Casey's definition of forensic soundness, he solution outlined herein makes no claim about the veracity of the evidence as it relates to physical phenomena, except that it 
+is a faithful representation of the information communicated
 by the ECM, but the other characteristics of evidence can be compared. The main difference here is that when extracting and storing evidence through traditional means, even if the
 evidence agrees with other sources it is not tamper-proof, and thus can only achieve a rating of C4 in the absolute best case (i.e. there is physical evidence corroborating the 
 digital evidence). However, with the tamper protections added by the cryptosystem presented herein, the digital evidence is rated at C4 at bare minimum, reaching C5 or C6 with corroborating

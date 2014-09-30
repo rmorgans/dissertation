@@ -14,7 +14,7 @@ logged fault codes, and engine configuration information.
 
 ``Snapshots'' are a freeze-frame of the state of the truck at the time a critical fault is detected. These snapshots
 include everything from wheel speed to engine speed. A bench download can lead to new snapshots being created, because an ECM that is outside
-of a vehicle will interpret the lack of sensor data from a truck as a series of faults. As Caterpiller ECMs are typically
+of a vehicle will interpret the lack of sensor data from a truck as a series of faults. As Caterpillar ECMs are typically
 limited to four snapshots, creating new snapshots can overwrite existing snapshot information. As such, logging and replaying snapshot information is critical to any forensic solution for
 Caterpillar ECMs.
 
@@ -160,4 +160,7 @@ The steps of the test procedure were as follows:
 \subsection{Results}
 
 Upon comparison, snapshots recorded from replayed traffic were identical to those recorded from identical ECM traffic. Warranty report information was also identical
-between replayed traffic extractions. ECM running time figures changed from extraction to extraction when extracting data directly from the ECM.
+between replayed traffic extractions. ECM running time figures changed from extraction to extraction when extracting data directly from the ECM; in this case, the
+data extracted from the replay mechanism were more consistent than that from the ECM.
+
+

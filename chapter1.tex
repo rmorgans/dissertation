@@ -93,7 +93,7 @@ the data corresponding to that PID. As the J1708 and J1587 standards specify the
 after.
 
 \begin{figure}[h]
-  \center
+  \centering
   \includegraphics[scale=0.6]{PackedPIDs}
   \caption{A J1708 message with packed PIDs.}
   \label{fig:packedpids}
@@ -212,7 +212,7 @@ and can be verified later by re-hashing the image. Assuming that the hash itself
 detect any changes in the data.
 
 \begin{figure}[h]
-
+  \center
   \includegraphics[scale=0.5]{cumminsbench}
   \caption{A bench download from a Cummins ECM}
   \label{fig:cumminsbench}
@@ -230,28 +230,31 @@ A review of the rules of evidence as they relate to
 digital forensics may be found in \cite{meyers2005}, and are summarized in the following lists. Any forensic
 evidence must meet these standards in order to be admissible:
 
-\begin{figure}[h]
+
+\begin{center}
 1. Summary of relevant criteria from \emph{Daubert}
-\begin{enumerate}[(a)]
+\end{center}
+\begin{itemize}
   \item Testimony must be relevant and reliable
   \item Judges have the task of ensuring that expert testimony rests on a reliable
         foundation and is relevant.
   \item Some or all of certain specific factors, including testing, peer review, error
         rates, and acceptibility in the relevant scientific community, may prove helpful
         in determining reliability of forensic testimony.
-\end{enumerate}
+\end{itemize}
 
+\newpage
 
-  \centering
-  2. Summary of relevant criteria from the Federal Rules of Evidence
-\begin{enumerate}[(a)]
+\begin{center}
+ 2. Summary of relevant criteria from the Federal Rules of Evidence
+\begin{itemize}
   \item Method can be and has been tested
   \item Method has been subjected to peer review or publication.
   \item Method has a known error rate
-\end{enumerate}
+\end{itemize}
 
-\label{ref:ch1fed}
-\end{figure}
+\end{center}
+
 
 In addition to the general rules of evidence, the digital forensics literature contains many attempts to quantify the concept of forensic soundness.
 A Special Report issued by the National Institute for Justice on Electronic Crime Scene Investigation \cite{NIJ2008} highlights the following basic forensic 
