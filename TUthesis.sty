@@ -37,6 +37,13 @@
 %
 % Turn on doublespace and set the paragraph indentation
 %
+% Richard D. Redner modified TUthesis.tex and the chapter samples
+% on August 18, 2013 to add Lorem Ipsum text, add a setting to change
+% the title of the last chapter, and add the argument [htp] to the tables
+% and figures to keep them from floating under the footnotes.
+% All changes he made to TUthesis.sty are individually marked are
+% intended to meet the 2013 Thesis and Dissertation Guidelines.
+
 \doublespace
 \parindent=.5truein
 
@@ -49,15 +56,14 @@
 % and a different set of values if we want to generate a dvi file
 % and then convert it to PDF.  Use 
 
-\ifpdfa
+\ifpdf
    \def\amhere{The template is currently set to generate PDF directly.}
-   \oddsidemargin 0.575truein \evensidemargin 0.575truein
-   \textheight 9.0truein \textwidth 5.8875truein
-%   \topmargin -0.3625truein \headsep .04truein
-   \topmargin -0.3625truein \headsep .04truein
-   \footskip 0.6125truein
-
-   
+   \oddsidemargin 0.2truein \evensidemargin 0.2truein
+% begin change by RDR 2013-08-14
+%   \textheight 9.94truein \textwidth 6.5truein 
+   \textheight 9.25truein \textwidth 6.5truein
+% end change
+   \topmargin -0.425truein \headsep .04truein
 \else
    \def\amhere{The template is currently set for you to generate PDF from Postscript.}
    \oddsidemargin 0.4truein \evensidemargin -0.225truein
@@ -84,6 +90,9 @@
 \def\numofpages#1{\gdef\@numofpages{#1}}
 \def\numofabstractwords#1{\gdef\@numofabstractwords{#1}}
 \newcount\numofchapters
+% begin change RDR 2013-08-18
+\def\lastchapter#1{\gdef\@lastchapter{#1}}
+% end change
 \def\thesisordiss#1{\gdef\@thesisordiss{#1}}
 \newif\ifthesis
 \def\thds{
@@ -160,12 +169,12 @@
 
 \def\titlep{%
         \thispagestyle{empty}%
-        \null\vspace{.6125truein}%
+        \null\vspace{.5truein}%
         \begin{center}
                 T H E\ \ \ U N I V E R S I T Y\ \ \ O F\ \ \ T U L S A\\
                 THE GRADUATE SCHOOL
         \end{center}
-        \vfill\vfill
+        \vfill
         \begin{center}
                 \uppercase\expandafter{\@title}
         \end{center}
@@ -201,12 +210,22 @@
 %
 \newcount\committeesize
 \newif\ifcoadvisor
-\def\sigline{\ \hbox to 2.85truein{\hrulefill}}
-\def\sigadjust{\ifnum\committeesize=3\vspace{-.50truein}
+% begin change by RDR 2013-08-18
+\def\sigline{\hspace*{1.5truein}\rule{3truein}{0.4pt}}
+%\def\sigline{\ \hbox to 2.85truein{\hrulefill}}
+% end change
+%begin change by RDR 2013-08-18
+%\def\sigadjust{\ifnum\committeesize=3\vspace{-.50truein}
+%               \else \ifnum\committeesize=4\vspace{-.50truein}
+%                     \else \ifnum\committeesize=5\vspace{-.50truein}
+%                        \else \ifnum\committeesize>5\vspace{-.45truein}
+%              \fi\fi\fi\fi}
+\def\sigadjust{\begin{center}\ifnum\committeesize=3\vspace{-.50truein}
                \else \ifnum\committeesize=4\vspace{-.50truein}
                      \else \ifnum\committeesize=5\vspace{-.50truein}
                         \else \ifnum\committeesize>5\vspace{-.45truein}
-              \fi\fi\fi\fi}
+              \fi\fi\fi\fi\end{center}}
+% end change
 \def\coadvisorline{
         \begin{center}
             \ \hspace{.87truein}\sigline, Co-advisor
@@ -222,7 +241,7 @@
 %
 \def\signaturep{%
         \doublespace
-        \null\vspace{.625truein}%
+        \null\vspace{.5truein}%
         \begin{center}
                 T H E\ \ \ U N I V E R S I T Y\ \ \ O F\ \ \ T U L S A\\
                 THE GRADUATE SCHOOL
@@ -245,61 +264,99 @@
             By\ThDs Committee\\
         \end{center}
         %\vspace{-.25truein}
-        \ifcoadvisor \coadvisorline
-            \else \chairpersonline
-        \fi
-        \sigadjust
-        \begin{center}
-            \ \hbox to 2.5truein{\@advisor\hfill}
-        \end{center}
-        \ifcoadvisor 
-            \coadvisorline
-        \else
-            \begin{center}
-                \sigline
-            \end{center}
-        \fi  
-        \sigadjust       
-        \begin{center}
-            \ \hbox to 2.5truein{\expandafter{\@secondmember\hfill}}
-        \end{center}
-        \begin{center}
-            \sigline
-        \end{center}
-        \sigadjust
-        \begin{center}
-            \ \hbox to 2.5truein{\@thirdmember\hfill}
-        \end{center}
-        \ifnum\committeesize>3
-            \begin{center}
-                \sigline
-            \end{center}
-        \sigadjust
-            \begin{center}
-                \ \hbox to 2.5truein{\@fourthmember\hfill}
-            \end{center}
-        \fi        
-        \ifnum\committeesize>4
-            \begin{center}
-                \sigline
-            \end{center}
-            \sigadjust
-            \begin{center}
-                \ \hbox to 2.5truein{\@fifthmember\hfill}
-            \end{center}
-        \fi        
-        \ifnum\committeesize>5
-            \begin{center}
-                \sigline
-            \end{center}
-        \sigadjust
-            \begin{center}
-                \ \hbox to 2.5truein{\@sixthmember\hfill}
-        \end{center}
-        \fi
-        \vspace{.05truein}
-        \newpage}
- 
+% begin changes by RDR 2013-08-18
+\begin{singlespace}
+		\ifcoadvisor
+			\sigline, Co-adviser\\
+		\else
+			\sigline, Advisor\\
+		\fi
+		\null\hspace{1.5truein}\expandafter{\@advisor}\\
+		\sigadjust
+		\ifcoadvisor
+			\sigline, Co-adviser\\ 
+		\else
+			\sigline\\ 
+		\fi
+		\null\hspace{1.5truein}\expandafter{\@secondmember}\\
+% The additional members...
+       \ifnum\committeesize>2 % changed from 3 to 2 2014-04-29 by RDR
+       		\sigadjust
+			\sigline\\
+			\null\hspace{1.5truein}\expandafter{\@thirdmember}\\    
+       \fi
+       \ifnum\committeesize>3 % changed from 4 to 3 2014-04-29 by RDR
+       \sigadjust
+			\sigline\\
+			\null\hspace{1.5truein}\expandafter{\@fourthmember}\\    
+       \fi      
+       \ifnum\committeesize>4 % changed from 5 to 4 2014-04-29 by RDR
+       \sigadjust
+			\sigline\\
+			\null\hspace{1.5truein}\expandafter{\@fifthmember}\\    
+       \fi     
+         \ifnum\committeesize>5 % added this case on 2014-04-29 by RDR
+         \sigadjust
+			\sigline\\
+			\null\hspace{1.5truein}\expandafter{\@sixthmember}\\    
+       \fi  
+    \end{singlespace}     
+	\newpage}
+%        \ifcoadvisor \coadvisorline
+%            \else \chairpersonline
+%        \fi
+ %       \sigadjust
+  %      \begin{center}
+%            \ \hbox to 2.5truein{\@advisor\hfill}
+%        \end{center}
+%        \ifcoadvisor 
+%            \coadvisorline
+%        \else
+%            \begin{center}
+%                \sigline
+%            \end{center}
+%        \fi  
+%        \sigadjust       
+%        \begin{center}
+%            \ \hbox to 2.5truein{\expandafter{\@secondmember\hfill}}
+%        \end{center}
+%        \begin{center}
+%            \sigline
+%        \end{center}
+ %       \sigadjust
+%        \begin{center}
+%            \ \hbox to 2.5truein{\@thirdmember\hfill}
+%        \end{center}
+%        \ifnum\committeesize>3
+%            \begin{center}
+%                \sigline
+%            \end{center}
+%        \sigadjust
+%            \begin{center}
+%                \ \hbox to 2.5truein{\@fourthmember\hfill}
+%            \end{center}
+%        \fi        
+%        \ifnum\committeesize>4
+%            \begin{center}
+%                \sigline
+%            \end{center}
+%            \sigadjust
+%            \begin{center}
+%                \ \hbox to 2.5truein{\@fifthmember\hfill}
+%            \end{center}
+%        \fi        
+%        \ifnum\committeesize>5
+%            \begin{center}
+%                \sigline
+%            \end{center}
+%        \sigadjust
+%            \begin{center}
+%                \ \hbox to 2.5truein{\@sixthmember\hfill}
+%        \end{center}
+%        \fi
+%        \vspace{.05truein}
+%        \newpage}
+% end changes
         
 %%%%%%%%%%%%%%%%%%%%%
 % Copyright page def
@@ -308,14 +365,22 @@
 \def\copyrightp{%                
     \addcontentsline{toc}{section}{\contentsadj COPYRIGHT}
     \addtocontents{toc}{\protect{\hfill \ }}
-    \doublespace
-    \null\vspace{.625truein}%
+% begin change by RDR 2013-08-31
+%    \doublespace
+    \null\vspace{.5truein}%
     \begin{center}
-        {COPYRIGHT STATEMENT}
-    \end{center}
-    \begin{center}
+        {COPYRIGHT STATEMENT}\\
+%    \end{center}
+\vspace{\baselineskip}
+%    \begin{center}
         \noindent Copyright \copyright\ \@submityear \  by \@author
-    \end{center} \par\par
+%    \end{center} \par\par
+\end{center}
+\vspace{12pt}
+\doublespace
+%  end change
+% added a blank line to cause paragraph indention RDR 2014-04-28
+
        All rights reserved.  No part of this publication may
        be reproduced, stored in a retrieval system, or transmitted, in
        any form or by any means, electronic, mechanical, photocopying,
@@ -329,13 +394,16 @@
 % Abstract page def
 %%%%%%%%%%%%%%%%%%%%
 
-\def\abstractp{%              
+\def\abstractp{
     \addcontentsline{toc}{section}{\contentsadj ABSTRACT}
     \addtocontents{toc}{\protect{\hfill \ }}
-    \null\vspace{.625truein}%
+    \null\vspace{.5truein}%
     \begin{center}
         ABSTRACT
     \end{center}
+    % begin change by RDR 2013-08-19
+\vspace{12pt}
+%  end change
     \expandafter{\@author}\ \ (\expandafter{\@degreename} in \expandafter{\@dept})\\
     \expandafter{\@titleoneline}\\
     Directed by \ifcoadvisor \expandafter{\@advisor} and \expandafter{\@secondmember}
@@ -343,7 +411,10 @@
                 \expandafter{\@advisor}
                 \fi
                 \\
-    \@numofpages\ pp., Chapter \uppercase\expandafter{\@arabic\numofchapters}: Conclusions\\
+% begin change by RDR 2013-08-18
+%    \@numofpages\ pp., Chapter \uppercase\expandafter{\@arabic\numofchapters}: Conclusions\\
+        \@numofpages\ pp., Chapter \uppercase\expandafter{\@arabic\numofchapters}: \expandafter{\@lastchapter}\\
+% end change
     \vspace{-.4truein}
     \begin{center}
         (\@numofabstractwords\ words)
@@ -358,10 +429,16 @@
     \clearpage             
     \addcontentsline{toc}{section}{\contentsadj ACKNOWLEDGEMENTS}
     \addtocontents{toc}{\protect{\hfill \ }}
-    \null\vspace{.625truein}%
+    \null\vspace{.5truein}%
     \begin{center}
         ACKNOWLEDGEMENTS
-    \end{center}\par\par
+% begin change by RDR 2013-08-19
+%    \end{center} \par\par
+\end{center}
+\vspace{12pt}
+% added a blank line to cause paragraph indention RDR 2014-04-28
+
+%  end change
 }
 
 % 
@@ -373,34 +450,40 @@
 \def\beforeabstract{
         \titlep
         \signaturep
-        \addtocontents{toc}{\protect{\vspace{10pt}}}
-        \addtocontents{toc}{\protect{\hfill Page}}
-        \addtocontents{toc}{\protect{\vspace{10pt}}}
+% begin change by RDR 2013-08-17
+%        \addtocontents{toc}{\protect{\vspace{10pt}}}
+%        \addtocontents{toc}{\protect{\hfill Page}}
+%        \addtocontents{toc}{\protect{\vspace{10pt}}}
+                \addtocontents{toc}{\protect{\vspace{3\baselineskip}}}
+% end change
         \ifcopyright\copyrightp\fi
         \cleardoublepage
 }
         
 \def\afteracknowledgementsp{
-    % This command is dumb, but necessary.
-    % Because the table of contents command creates its own page which is single 
-    % spaced the header gets pushed up a quarter inch. This pushes it back down.
-    \renewcommand\contentsname{\begin{center}\vspace{.05truein}TABLE OF CONTENTS\end{center}}
     \singlespace
     \tableofcontents
     \doublespace
     \addcontentsline{toc}{section}{\contentsadj TABLE OF CONTENTS}
     \iftablespage
         \listoftables
+ 
         \addtocontents{toc}{\protect{\hfill \ }}
-        %\addtocontents{toc}{\protect{\vspace{10pt}}}
-        \addtocontents{lot}{\protect{\hfill Page}}
+        %\addtocontents{toc}{\protect{\vspace{10pt}}} 
+        % begin change by RDR 2013-08-17      
+        %\addtocontents{lot}{\protect{\hfill Page}}
+                        \addtocontents{lot}{\protect{\vspace{\baselineskip}}}
+        % end change
         \addcontentsline{toc}{section}{\contentsadj LIST OF TABLES}
     \fi
     \iffigurespage
         \listoffigures
         \addtocontents{toc}{\protect{\hfill \ }}
         %\addtocontents{toc}{\protect{\vspace{10pt}}}
-        \addtocontents{lof}{\protect{\hfill Page}}
+        % begin change by RDR 2013-08-17      
+        %\addtocontents{lof}{\protect{\hfill Page}}
+                                \addtocontents{lof}{\protect{\vspace{\baselineskip}}}
+% end change
         \addcontentsline{toc}{section}{\contentsadj LIST OF FIGURES}
     \fi
     \clearpage
@@ -449,7 +532,7 @@
     \refstepcounter{appendixno}
     \centerline{APPENDIX \theappendix}
     \centerline{\bf \uppercase\expandafter{#1}}
-    %\vspace{\baselineskip}
+    \vspace{\baselineskip}
     \addcontentsline{toc}{section}{\contentsadj APPENDIX \theappendix:\ \ 
     {\bf \uppercase\expandafter{#1}}
     }
