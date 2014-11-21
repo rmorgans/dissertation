@@ -1,4 +1,4 @@
-\chapter{Case Study: Caterpillar}
+\TUchapter{Case Study: Caterpillar}
 
 The approach described in Chapter 3 was tested against ECMs manufactured by Caterpillar, Inc. This manufacturer was
 chosen for several reasons. Firstly, the process for extracting data from Caterpillar ECMs is unusually tedious compared
@@ -6,7 +6,7 @@ to other manufacturers' products, so automating it would provide maximum value t
 Secondly, as will be explained shortly, the proprietary communications protocol used
 by Caterpillar is encrypted in such a way that implementing a replay mechanism is challenging.
 
-\section{Caterpillar Data}
+\TUsection{Caterpillar Data}
 
 The information stored on the CAT ECMs under study include warranty report information and snapshot
 information. The warranty report contains the identity of the ECM, historical usage information such as engine use histogram,
@@ -18,7 +18,7 @@ of a vehicle will interpret the lack of sensor data from a truck as a series of 
 limited to four snapshots, creating new snapshots can overwrite existing snapshot information. As such, logging and replaying snapshot information is critical to any forensic solution for
 Caterpillar ECMs.
 
-\section{Deciphering Network Data}
+\TUsection{Deciphering Network Data}
 
 Observation of RP1210 calls made by the Caterpillar Electronic Technician (CAT ET) software showed that all requests sent by,
 and all responses to those requests, were made using extensions to the J1708/J1587 and J1939 protocols
@@ -26,7 +26,7 @@ proprietary to Caterpillar. As requests and responses changed significantly betw
 no change in data displayed, it was determined that some session-based encryption mechanism was
 used.
 
-\subsection{Static Analysis}
+\TUsubsection{Static Analysis}
 
 As most of the CAT ET software is written using Microsoft's .NET framework, the software was decompiled
 using JetBrains Software's dotPeek .NET decompiling tool. After some exploration of the code base,
@@ -91,7 +91,7 @@ decompiled code, and the disassembly of a native DLL,  revealed the following sy
 \end{figure}
 
 
-\subsection{Dynamic Analysis}
+\TUsubsection{Dynamic Analysis}
 
 Now that the algorithm that encrypted ECM communications was known, the information contained in those
 messages could be observed to determine how that information should be extracted and replayed. The
@@ -106,7 +106,7 @@ in Figure \ref{fig:ataprotocol}
   \label{fig:ataprotocol}
 \end{figure}
 
-\section{Information Extraction}
+\TUsection{Information Extraction}
 
 Now that the mechanism of the protocol was somewhat understood, it was possible to extract the information.
 A manual extraction was performed according to a checklist for a crash information extraction, and the 
@@ -117,12 +117,12 @@ It should be noted that the storage format preserves the opcode of the message. 
 responses with matching PIDs were recorded in the key-value pair. It was observed that some responses were split over
 several messages, so this was accounted for in the extraction software.
 
-\section{Verification}
+\TUsection{Verification}
 
 In order to ensure that the method of information extraction was reliable, replays from the ECM were tested against
 actual extractions from CAT ECMs.
 
-\subsection{Procedure}
+\TUsubsection{Procedure}
 
 The ECMs tested were evidence ECMs that were already used, and thus had been pre-populated with data.
 The verification procedure was designed to determine the fidelity of the information replayed, as well as the
@@ -157,7 +157,7 @@ The steps of the test procedure were as follows:
   \item Compare consistency of ECM extractions and replayed extractions.
 \end{enumerate}
 
-\subsection{Results}
+\TUsubsection{Results}
 
 Upon comparison, snapshots recorded from replayed traffic were identical to those recorded from identical ECM traffic. Warranty report information was also identical
 between replayed traffic extractions. ECM running time figures changed from extraction to extraction when extracting data directly from the ECM; in this case, the

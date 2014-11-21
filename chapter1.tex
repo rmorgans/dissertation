@@ -1,4 +1,4 @@
-\chapter{Introduction}
+\TUchapter{Introduction}
 Each year many thousands of trucks are involved in traffic accidents; in 2008, 380,000 trucks were involved in accidents \cite{NHTSA2008}.
 Litigation connected with these crashes can result in judgments in the millions of dollars. In recent years, this litigation has 
 come to depend more and more heavily on electronic event data recorded on the trucks' engine control systems. 
@@ -14,7 +14,7 @@ manner, doing so requires diligence on the part of the investigator and mistakes
 reset trip data when an extraction is performed.
 Additionally, the current methods by which data are stored are not particularly resistant to tampering\cite{Johnson2014}. 
 
-\section{Truck ECMs and Evidence}
+\TUsection{Truck ECMs and Evidence}
 
 Beginning in the early 1990s, truck engine manufacturers implemented electronic engine control in order to meet more stringent emissions
 requirements placed on large diesel vehicles\cite{NHTSA-EDR-2002}. Over time, demand from fleet customers lead to implementation of data logging within these
@@ -59,7 +59,7 @@ external reference measurements, it is discovered that the data actually is repo
 intervals (5 Hz)\cite{bortolin2009}. Similarly, Austin and Farrell \cite{austin2011} showed that many Snapshot records 
 from Caterpillar are reported every 0.5 seconds instead of every second as represented in the OEM software.
 
-\section{Heavy Vehicle Networks}
+\TUsection{Heavy Vehicle Networks}
 
 In modern automobiles, the number of in-vehicle electronic devices that need to communicate with one another has seen dramatic increases:
 engine control modules, anti-lock brake system modules, transmission control modules, collision detection systems, and even entertainment systems are examples of
@@ -74,7 +74,7 @@ this network. As crash evidence is extracted using diagnostic programs, vehicle 
 crash information. There are two major vehicle network standards used in heavy trucks published by the Society of Automotive Engineers,
  SAE J1708/1587\cite{J1708}\cite{J1587} and SAE J1939\cite{J1939-71}.
 
-\subsection{SAE J1708/SAE 1587}
+\TUsubsection{SAE J1708/SAE 1587}
 
 SAE J1708 is the older of the two major standards, having been adopted in 1986. It defines the physical layer of the network,
 with the higher layers handled by the J1587 standard. It is based upon the RS-485 standard for serial communication, converted to 
@@ -123,7 +123,7 @@ proprietary extension PID (0xFE), and the third byte is the recipient's MID. Any
   \label{fig:j1587-proprietary}
 \end{figure}
 
-\subsection{SAE J1939}
+\TUsubsection{SAE J1939}
 
 SAE J1939\cite{J1939-71} is the newer standard, adopted in the year 2000. The physical layer is based on the CAN bus standard developed by Bosch\cite{Bosch1991}, which is widely in use
 in passenger vehicles as well as industrial control applications. The CAN bus standard provides many improvements over the J1708 physical layer,
@@ -142,7 +142,7 @@ to the manufacturer. As with J1708, diagnostic software makes heavy use of propr
   \label{fig:osimodel}
 \end{figure}
 
-\section{Diagnostic Link Connector Hardware and Software}
+\TUsection{Diagnostic Link Connector Hardware and Software}
 
 Engine control modules communicate over vehicle-specific networks, so diagnostic software requires a device that can mediate between
 vehicle networks and interfaces on desktop computers, such as RS-232 or USB. Those devices are known as Diagnostic Link Connectors (DLCs).
@@ -163,7 +163,7 @@ the RP1210 interface, the drivers, and device itself is given in Figure \ref{fig
   \label{fig:rp1210}
 \end{figure}
 
-\subsection{RP1210 Functions and Their Uses}
+\TUsubsection{RP1210 Functions and Their Uses}
 
 A typical RP1210 session commences as follows. First, the file ``RP121032.INI'' is read to determine which RP1210-compliant devices are installed
 on the system. When a device is chosen by the user, the appropriate DLL is loaded into memory and its exported functions are loaded into memory.
@@ -175,7 +175,7 @@ messages based on MID or PGN, claim an address on a J1939 network, and other con
 set up, the client then uses \texttt{RP1210\_SendMessage} and \texttt{RP1210\_ReadMessage} to communicate on the network. The client terminates
 the session with the \texttt{RP1210\_ClientDisconnect} call.
 
-\section{Current Practices}
+\TUsection{Current Practices}
 
 With the hardware and software requirements established, the typical procedure for an information download from heavy trucks can now be explained.
 As mentioned previously, the information is typically downloaded using the engine manufacturer's diagnostic software. The normal use case
@@ -193,7 +193,7 @@ This information is then recorded, in most cases, by printing the data to a PDF 
 printing data and so it must be captured using a screenshot. All of the files resulting from the extraction are then stored on some kind of
 removable media and produced to the client.
 
-\subsection{For Contrast: Hard Disk Forensics}
+\TUsubsection{For Contrast: Hard Disk Forensics}
 
 In order to put current evidence handling practices for ECMs in the context of digital forensics in general, the evidence extraction
 procedures for hard disk drives will be briefly explained. A more thorough treatment of this subject is given by Brian Carrier in \cite{carrier2005}.
@@ -218,7 +218,7 @@ detect any changes in the data.
   \label{fig:cumminsbench}
 \end{figure}
 
-\section{Forensic Soundness}
+\TUsection{Forensic Soundness}
 
 A heavy vehicle electronic control module (ECM) is a specialized process control computer that may have data of interest to an investigator. 
  As such, many of the principles from computer forensics can be applied to heavy vehicle ECMs.
@@ -299,7 +299,7 @@ While these descriptions include requirements that are encompassed by the requir
 specified by McKemmish, this standard includes the principle of tamper resistance. In addition to protecting the evidence from tampering, 
 a system which can demonstrate the absence of tampering also fulfills this requirement.
 
-\section{Shortcomings of Current Practices}
+\TUsection{Shortcomings of Current Practices}
 
 Though several authors describe the concept of forensic soundness slightly differently, the basic concepts remain the same. The evidence must be extracted in a transparent,
 repeatable, and verifiable manner that alters or destroys as little data as possible. There must be a high degree of certainty that the data is interpreted correctly. There must
@@ -323,7 +323,7 @@ as currently accepted in the digital forensics community.
 In reference \cite{Johnson2014}, Johnson, Daily, and Kongs describe the current shortcomings of heavy truck ECM forensics, reviewing the weaknesses previously enumerated in this section. They also
 demonstrate a practical example of file modification of a DDEC Reports data file, altering vehicle speed records.
 
-\section{Related Work}
+\TUsection{Related Work}
 
 The literature relating to the forensics of heavy truck ECM data is relatively undeveloped. Most of the work to date, such as references \cite{reust2004}, \cite{steiner2013}, and \cite{austin2011} deal
 with the accuracy of data recorded on ECMs and causes of data loss. While these works address the practical necessities of extracting data from ECMs and ensuring that the data are

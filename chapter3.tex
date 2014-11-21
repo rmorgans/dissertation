@@ -1,8 +1,8 @@
-\chapter{ECM Replay Software}
+\TUchapter{ECM Replay Software}
 
 This chapter discusses the specific implementation of the method outlined in the previous chapter.
 
-\section{Recording an extraction}
+\TUsection{Recording an extraction}
 
 The first step in extracting data from an ECM was to determine how the manufacturers themselves extracted
 the desired data. Without performing extensive static or dynamic analysis of the internals of the maintenance
@@ -10,7 +10,7 @@ software, it was determined that the best way to determine the extraction proces
 sent by the maintenance software to the ECM. Recording these messages could take place at two information boundaries,
 the network or the diagnostic link connector driver.
 
-\subsection{Network Recording}
+\TUsubsection{Network Recording}
 
 Communication between the ECM and the maintenance software may be recorded at the network level, but this method
 has some drawbacks.
@@ -24,7 +24,7 @@ Secondly, some meaning is lost. Applications typically use RP1210\_SendCommand c
 or other irrelevant messsages. Observation strictly at the network level does not provide any clues as to which messages
 the application might be filtering, so unimportant messages must be identified and filtered out.
 
-\subsection{RP1210 Recording}
+\TUsubsection{RP1210 Recording}
 
 An alternate method of recording information extraction is to record calls made to the RP1210 drivers
 by the maintenance software. This has the advantage of not requiring additional hardware to 
@@ -62,7 +62,7 @@ messages are important. API hooking code is included in Appendix \ref{app:trace}
   \label{fig:infoboundaries}
 \end{figure}
 
-\section{Replaying an Extraction}
+\TUsection{Replaying an Extraction}
 
 In order to ensure that the method of evidence extraction was as general as possible, evidence extraction was implemented
 by simply replaying requests recorded during an actual information extraction. In the case of encrypted requests, where
@@ -81,7 +81,7 @@ index maintained during the extraction. Upon receipt of a message, the index is 
 If responses to requests depend on earlier messages, receipt of the earlier messages will advance the index to
 the expected response.
 
-\subsection{Replaying Extracted Data}
+\TUsubsection{Replaying Extracted Data}
 
 Just as a transformation function may need to be specified for extraction of encrypted information, such a transformation
 function may also need to be specified during replay. A comparison function needs to be specified, as the message format may

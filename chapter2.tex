@@ -1,11 +1,11 @@
-\chapter{The proposed method}
+\TUchapter{The proposed method}
 
 This chapter outlines the general proposed method for forensic data extraction from ECMs. It outlines the requirements that such a solution must meet,
 and then describes a general method for meeting those requirements. Specifics of the implementation will be laid out in later chapters.
 
-\section{Requirements}
+\TUsection{Requirements}
 
-\subsection{Baseline of Trust}
+\TUsubsection{Baseline of Trust}
 
 In order to make a full accounting of potential sources of error in any forensic process, it is important to examine the assumptions that the process requires. Standard methods of 
 truck evidence extraction assume that the ECM is reporting data faithfully, that the vehicle network is accurately transmitting the communication to and from the ECM. It also assumes 
@@ -16,7 +16,7 @@ bus and USB) can be easily verified. Both protocols make use of error-correcting
 cyclic redundancy check that is defined in the CAN standard detects all errors from 1 to 5 bits in the data frame, and will detect all but 0.00018\% of 6-bit 
 errors in a CAN frame\cite{koopman2004}. This represents a level of certainty that would take many years to experimentally verify because the likelihood of having an undetected error is so low.
 
-\subsection{Protocols}
+\TUsubsection{Protocols}
 
 Because typical ECM data extractions occur over vehicle networks, analysis of their forensic soundness requires consideration of the specifications
 of protocols  used for communication over those networks.
@@ -24,13 +24,13 @@ In heavy trucks, the networking protocols enumerate and define the various data 
 of the data present in the ECM. For example, a data type that is rounded to the nearest power of ten (186 rounded to 190, for example) when transmitted on the network might 
 indicate that the value stored to and reported by the ECM is rounded in a similar fashion.
 
-\subsection{Authentication}
+\TUsubsection{Authentication}
 
 A cryptographic hash function is an algorithm that generates a “fingerprint” of a given input. This fingerprint is generated in such a way that if a single bit of the input changes, 
 roughly half the bits in the output file are altered\cite{schneier1996}. As such, they are commonly used to confirm that data have not been altered. A forensically sound tool should use a hash of 
 the extracted truck evidence data to ensure that it has not been altered.
 
-\subsection{Evidence Preservation}
+\TUsubsection{Evidence Preservation}
 
 Ideally, a forensic solution would allow the evidence to be preserved indefinitely. While hard disks are fairly inert when not used, heavy truck ECMs are actual computers that 
 have some volatile data elements. One example is the ECM's system clock.
@@ -50,7 +50,7 @@ Though the batteries in ECMs are large, and power drains slowly over time, this 
 
 \end{figure}
 
-\section{The Solution}
+\TUsection{The Solution}
 The solution arrived at was borrowed from the world of computer forensics. In a computer forensic investigation,
 a low-level copy of the evidence drive is made; this copy is known as the ``disk image.'' Forensic analysis
 is performed on this disk image instead of the original disk, so as to alter the original source evidence as
@@ -60,7 +60,7 @@ The goal was to extend this concept to truck ECMs: the information would be extr
 replayed for further analysis. The replay traffic information would be stored securely to prevent malicious tampering
 or accidental alteration.
 
-\subsection{Software Requirements}
+\TUsubsection{Software Requirements}
 
 Development of the forensic replay software requires the following steps:
 
@@ -79,7 +79,7 @@ Development of the forensic replay software requires the following steps:
 All of these would ideally be performed in a manner that is as general as possible to minimize development time
 supporting additional ECMs.
 
-\subsection{Comparison of method to disk imaging}
+\TUsubsection{Comparison of method to disk imaging}
 
 The largest difference between the proposed extraction replay method and a forensic disk extraction is obviously
 the amount of information extracted. When a disk is imaged, the entire physical contents of the disk (except for

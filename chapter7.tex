@@ -1,6 +1,6 @@
-\chapter{Conclusions and Future Work}
+\TUchapter{Conclusions and Future Work}
 
-\section{Contributions}
+\TUsection{Contributions}
 
 The work detailed in this dissertation makes the following contributions:
 
@@ -18,12 +18,12 @@ The work detailed in this dissertation makes the following contributions:
 
 \end{itemize}
 
-\section{Summary of Provided Solution}
+\TUsection{Summary of Provided Solution}
 
 As can be seen from the diffs of Warranty Files from the various extractions, replayed data is consistent with
 traditionally extracted data in all respects, and is in fact more consistent in some areas.
 
-\subsection{Forensic Soundness}
+\TUsubsection{Forensic Soundness}
 
 As can be seen from the verification results, the original evidence is modified less using forensic replay than it is by repeatedly
 extracting the information by traditional means. Even if no additional faults are created during a bench download, the ECM running
@@ -49,7 +49,7 @@ evidence agrees with other sources it is not tamper-proof, and thus can only ach
 digital evidence). However, with the tamper protections added by the cryptosystem presented herein, the digital evidence is rated at C4 at bare minimum, reaching C5 or C6 with corroborating
 physical evidence. 
 
-\subsection{Practicality}
+\TUsubsection{Practicality}
 
 Currently, in order to perform an evidence download from a heavy vehicle ECM, investigators require at bare minimum a laptop and a diagnostic link connector.
 If a bench download is to be performed, an engine flashing harness is required as well. Unfortunately, removing the need for an engine flashing harness is
@@ -59,15 +59,15 @@ While the current use case still requires a laptop, it does not require any soft
 as reducing the cost of software required to conduct investigations in the field. The hardware can be made no larger or heavier than existing diagnostic link connectors
 while remaining far cheaper.
 
-\section{Future Work}
+\TUsection{Future Work}
 
-\subsection{Understanding Meaning}
+\TUsubsection{Understanding Meaning}
 
 The current solution requires that investigators use the manufacturers' maintenance software to interpret the data that has been extracted and replayed from the ECM.
 While this is an improvement over the current situation in terms of ease and practicality, it is also not ideal. Future work in this area should include analyzing the
 meaning of the extracted ECM data, so that it can be analyzed and presented independently of proprietary software.
 
-\subsection{Information Verification}
+\TUsubsection{Information Verification}
 
 New work might also include verification of the interpretation of the data. Currently, it is assumed that the data reported by the ECM accurately reflect the conditions
 observed during incidents, and that the manufacturers' software accurately interprets this reported data. 

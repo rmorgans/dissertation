@@ -1,11 +1,11 @@
-\chapter{ECM Replay Hardware}
+\TUchapter{ECM Replay Hardware}
 
 This chapter describes the hardware, along with the software drivers that support it, on which
 the software described in the previous chapter will run. It will describe the requirements which
 the hardware needed to meet, and the way that those requirements will met.
 
 
-\section{Hardware Requirements}
+\TUsection{Hardware Requirements}
 
 While a computer connected to a diagnostic link connector can satisfactorily extract ECM data and replay
 it to another computer running the diagnostic software, this setup is inconvenient for a number of reasons.
@@ -23,9 +23,9 @@ A different solution was required, and the following requirements were arrived a
   \item It must be capable of communicating using heavy truck network protocols.
 \end{enumerate}
 
-\section{Hardware Platform Implementation}
+\TUsection{Hardware Platform Implementation}
 
-\subsection{Computer Hardware}
+\TUsubsection{Computer Hardware}
 
 The replay mechanism hardware is built around a BeagleBone, a commercially available ARM-based miniature computer produced
 by Texas Instruments\cite{BeagleBone}. The most recent iteration of the design, the BeagleBone Black, retails for roughly \$45 and has a 1GHz ARM
@@ -39,7 +39,7 @@ requirements.
   \label{fig:BBB}
 \end{figure}
 
-\subsection{Capes}
+\TUsubsection{Capes}
 
 One of the main reasons for adopting the BeagleBone platform is the capability to add functionality using expansion boards, known
 as Capes. Commercially available capes include a RS-485 cape and a CAN cape, supporting the physical layers of J1708/J1587 and J1939
@@ -53,7 +53,7 @@ with little to no modification.
   \label{fig:BBB-pinout}
 \end{figure}
 
-\section{Custom Cape}
+\TUsection{Custom Cape}
 
 As the currently available commercial options for RS-485 did not allow for communicating both over J1708 and J1939 networks, a custom
 hardware solution was required. A custom cape was designed for heavy vehicle communications based on J1708\cite{J1708}. A schematic is included in 
@@ -65,7 +65,7 @@ was wired up according to the specifications in the J1708 standard, and accessed
 The collision detection and prevention process in J1708 was implemented by using one of the Beaglebone's GPIO pins
 to check for logic high or logic low on the receive pin from the RS-485 chip.
 
-\subsection{Drivers}
+\TUsubsection{Drivers}
 
 Driver support for CAN was already well-documented in the BeagleBone; all that was required was to implement the J1939
 functionality on top of it. An existing implementation of J1939 for the Linux kernel was found \cite{j1939linux} and compiled into

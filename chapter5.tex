@@ -1,4 +1,4 @@
-\chapter{Cryptographic Protection}
+\TUchapter{Cryptographic Protection}
 
 To maximally ensure the data extracted are protected from alteration,
 they needed some form of cryptographic protection that would make it impossible, or at
@@ -13,7 +13,7 @@ detected. The protection requirements are as follows:
 
 \end{enumerate}
 
-\section{Protection Mechanism}
+\TUsection{Protection Mechanism}
 
 In traditional computer forensic investigations, a disk image is protected by performing
 a cryptographic hash on it. Later on, the image is hashed again and the two hashes are compared
@@ -34,7 +34,7 @@ the data instead. If the data are strongly encrypted, while altering the data ma
 \emph{meaningfully} altering the data is almost impossible. By ensuring that an attacker will gain nothing by
 altering the data, the data are effectively prevented from being altered.
 
-\section{Cryptosystem}
+\TUsection{Cryptosystem}
 
 While strongly encrypting the data protects it from alteration, encrypting the data on a remote device in such
 a way that the key is not discovered is a non-trivial exercise. The following encryption algorithm was developed
@@ -54,7 +54,7 @@ to perform this task:
 This is an example of a hybrid cryptosystem as described in \cite{cramer2004}. Cramer and Shoup prove that a hybrid cryptosystem of
 this type is secure so long as the underlying algorithms are secure, and the padding scheme used for encrypting the key is secure.
 
-\section{Cryptosystem Implementation}
+\TUsection{Cryptosystem Implementation}
 
 While the general cryptosystem is agnostic in terms of the actual algorithms used, a practical implementation requires specific
 algorithms to be chosen.
@@ -70,7 +70,7 @@ attacks on SHA-1\cite{Manuel2011}.
 
 In keeping with current security best practices, the symmetric keys are padded according to the PKCS\#1-OAEP standard before encryption\cite{Bellare1995}.
 
-\subsection{Key Generation}
+\TUsubsection{Key Generation}
 
 As all of the components of this cryptosystem are standard cryptographic primitives in common use in industry today, for the purposes of this
 dissertation they may safely be assumed to be secure. The security of the system hinges on the keys used by the algorithms. The public/private
@@ -114,20 +114,20 @@ kernel version 3.12, to the 3.8 kernel version. This modification is now include
 This new source of entropy was leveraged using the rng-tools software suite. Instead of using random data from the HWRNG directly, rng-tools
 reads data from the HWRNG, applies a test to ensure its randomness, and then feeds the Linux kernel's entropy pool with this data.
 
-\section{Proposed Integration Into Replay System}
+\TUsection{Proposed Integration Into Replay System}
 
 While the specification of the cryptosystem itself only specifies that the corresponding private key be held by a trusted third party, it does
 not specify how the cryptosystem is integrated into the use of this device. While the manner in which it is integrated is up to the ultimate
 user of the system, this section presents some proposed usage scenarios.
 
-\subsection{Central Decrypting Station}
+\TUsubsection{Central Decrypting Station}
 
 In this use case, security keys are held by a trusted 3rd party. For example, the device manufacturer or an escrow service can act as
 trusted third parties. When the data are to be decrypted, the encrypted file container may be sent to the trusted third party, decrypted,
 and then sent to all parties of the case individually over standard encrypted channels. The original cryptographic hashes generated
 during the extraction may be used to verify integrity of the unencrypted file after its return.
 
-\subsection{USB Key Tokens}
+\TUsubsection{USB Key Tokens}
 
 While the previous use case requires a network connection, it is possible to implement a solution that doesn't require network communications.
 For example, the private key may be sent to a local trusted third party (such as a judge). The key can then reside on a USB token until the

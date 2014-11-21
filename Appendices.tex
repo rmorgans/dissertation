@@ -1,9 +1,9 @@
 %\begin{appendices}
-\chapter{Code Listings}
+\TUappendix{Code Listings}
 
-\section{Extraction Code}
+\TUsection{Extraction Code}
 
-\subsection{catextract.py}\label{app:extraction}
+\TUsubsection{catextract.py}\label{app:extraction}
 %\lstset{basicstyle=\small}
 %\lstinputlisting[language=Python]{catreplay/simple-extract.py}
 \begin{minted}{python}
@@ -247,7 +247,7 @@ except:
 print("Extraction complete!\a\a\a\a")
 \end{minted}
 
-\subsection{catreplay.py}\label{app:replay}
+\TUsubsection{catreplay.py}\label{app:replay}
 \begin{minted}{python}
 import RP1210
 import logfileparser
@@ -374,7 +374,7 @@ if __name__ == '__main__':
 
 \end{minted}
 
-\subsection{logfileparser.py}
+\TUsubsection{logfileparser.py}
 \begin{minted}{python}
 import re
 import sys
@@ -469,7 +469,7 @@ if __name__ == "__main__":
 
 \end{minted}
 
-\subsection{ATAClient.py}
+\TUsubsection{ATAClient.py}
 \begin{minted}{python}
 
 import atamessage
@@ -538,7 +538,7 @@ class ATAClient():
 \end{minted}
 
 
-\subsection{atamessage.py}
+\TUsubsection{atamessage.py}
 \begin{minted}{python}
 import copy
 
@@ -667,7 +667,7 @@ class ATAMessage():
 \end{minted}
 
 
-\subsection{responses.py}
+\TUsubsection{responses.py}
 \begin{minted}{python}
 #/usr/bin/env python
 
@@ -770,8 +770,8 @@ class ResponseQueue():
 \end{minted}
 %\lstinputlisting{catreplay/responses.py}
 
-\section{Supporting Code}
-\subsection{RP1210Trace.py}\label{app:trace}
+\TUsection{Supporting Code}
+\TUsubsection{RP1210Trace.py}\label{app:trace}
 \begin{minted}{python}
 #!/usr/bin/env python
 
@@ -986,7 +986,7 @@ dbg.run()
 
 \end{minted}
 
-\subsection{J1708 Driver}
+\TUsubsection{J1708 Driver}
 \begin{minted}{python}
 #!/usr/bin/python3
 
@@ -1149,7 +1149,7 @@ if __name__ == "__main__":
   del(thisport)
 \end{minted}
 
-\chapter{Hardware Schematic}\label{app:schematic}
+\TUappendix{Hardware Schematic}\label{app:schematic}
 
 \includepdf[pages={1-4}]{HardwareSchematic.pdf}
 
