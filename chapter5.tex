@@ -61,14 +61,14 @@ algorithms to be chosen.
 
 The symmetric algorithm chosen to protect the data is AES-128, as the AES algorithm is the industry standard symmetric encryption
 algorithm, and it is currently believed to be secure. The 128-bit key length was chosen because of breaks discovered in the 256-bit
-key length\cite{Biryukov2009}. As is standard cryptographic practice \cite{NISTSP80038A}, the AES cipher is run in the Cipher Feedback (CFB)
+key length \cite{Biryukov2009}. As is standard cryptographic practice \cite{NISTSP80038A}, the AES cipher is run in the Cipher Feedback (CFB)
 operating mode to prevent frequency analysis attacks.
 
 The cryptographic hash function chosen is SHA-256. While a longer hash value may yield better security, a longer hash may also make
 it more difficult to write down a hash value for an investigator in the field. SHA-2 was chosen over SHA-1 because of the widely-published
-attacks on SHA-1\cite{Manuel2011}.
+attacks on SHA-1 \cite{Manuel2011}.
 
-In keeping with current security best practices, the symmetric keys are padded according to the PKCS\#1-OAEP standard before encryption\cite{Bellare1995}.
+In keeping with current security best practices, the symmetric keys are padded according to the PKCS\#1-OAEP standard before encryption \cite{Bellare1995}.
 
 \TUsubsection{Key Generation}
 
@@ -82,22 +82,22 @@ on the embedded device itself. Thus, the security of the system hinges entirely 
 the security of the key generation scheme, it was necessary to verify the security of the PRNG as implemented on this particular embedded ARM
 system.
 
-First, a review of the concepts of a PRNG may be helpful. A more in-depth analysis may be found in Gutterman's 2006 paper\cite{Gutterman2006}
-as well as the NIST tech report SP800-90A, Recommendation for Random Number Generation Using Deterministic Random Bit Generators\cite{NISTSP80090A}.
-By definition, a PRNG is a deterministic bit generator that takes as its input a secret initial value, called a seed\cite{NISTSP80090A}.
+First, a review of the concepts of a PRNG may be helpful. A more in-depth analysis may be found in Gutterman's 2006 paper \cite{Gutterman2006}
+as well as the NIST tech report SP800-90A, Recommendation for Random Number Generation Using Deterministic Random Bit Generators \cite{NISTSP80090A}.
+By definition, a PRNG is a deterministic bit generator that takes as its input a secret initial value, called a seed \cite{NISTSP80090A}.
 For a continuously running PRNG such as one provided by the Linux kernel, the PRNG may be continuously seeded with true random input, termed entropy input.
-There are several facets of security of PRNGs, two of which Gutterman terms ``forward security'' and ``backward security''\cite{Gutterman2006}.
+There are several facets of security of PRNGs, two of which Gutterman terms ``forward security'' and ``backward security'' \cite{Gutterman2006}.
 A forward-secure PRNG has the property that if an adversary learns the state of the generator at a certain time, she cannot deduce previous
 states of the generator. Conversely, a backward-secure PRNG has the property that an attacker cannot deduce future states of the generator
 if she learns the internal state of the generator at a certain time, provided that sufficient entropy is used to refresh the generator state.
 
 The Linux kernel provides a cryptographically secure random number generator, which provides two devices to userspace, \texttt{/dev/random} and
-\texttt{/dev/urandom}\cite{goichon2012} .  Both devices are fed from the same entropy pool, which has a counter associated with it to estimate the amount of
+\texttt{/dev/urandom} \cite{goichon2012}.  Both devices are fed from the same entropy pool, which has a counter associated with it to estimate the amount of
 entropy in the system. The difference between the two is that reads to \texttt{/dev/random} will block if the estimated level of entropy drops below
 a threshold value, while \texttt{/dev/urandom} will not. Entropy is replenished by three kernel functions that are exported to device drivers: they are called
 \texttt{add\_disk\_randomness()}, \texttt{add\_input\_randomness()}, and \texttt{add\_interrupt\_randomness()}.
 
-In 2006, Gutterman et al \cite{Gutterman2006} performed an in-depth analysis of the security of the random number generator provided by the Linux operating system. 
+In 2006, \emph{Gutterman et al.} \cite{Gutterman2006} performed an in-depth analysis of the security of the random number generator provided by the Linux operating system. 
 Of particular interest was their analysis of the Linux PRNG on routers running the OpenWRT distribution. As a PRNG is a deterministic algorithm, its security 
 relies upon the randomness of its entropy input. In practice, Linux systems use physical phenomena such as disk seek times, and user input
 such as mouse and keyboard use as their source of entropy inputs. However, embedded systems such as OpenWRT routers use solid-state disks

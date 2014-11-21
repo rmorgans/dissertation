@@ -31,8 +31,8 @@ by the maintenance software. This has the advantage of not requiring additional 
 record network traffic, and to abstract away the details of transport-layer operations of J1939. It does however
 still require a Diagnostic Link Connector.
 
-Recording calls made to these RP1210 drivers was accomplished using a technique called API hooking\cite{Berdajs2010}.
-A custom lightweight debugger was written using the PyDBG tool\cite{Amini2012}. Upon attaching the debugger to the software
+Recording calls made to these RP1210 drivers was accomplished using a technique called API hooking \cite{Berdajs2010}.
+A custom lightweight debugger was written using the PyDBG tool \cite{Amini2012}. Upon attaching the debugger to the software
 in question, the debugger searches process memory for any loaded RP1210 drivers. Upon discovering a loaded RP1210
 driver module, it places breakpoints on the following RP1210 function addresses:
 

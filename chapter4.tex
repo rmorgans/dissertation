@@ -9,7 +9,7 @@ the hardware needed to meet, and the way that those requirements will met.
 
 While a computer connected to a diagnostic link connector can satisfactorily extract ECM data and replay
 it to another computer running the diagnostic software, this setup is inconvenient for a number of reasons.
-First of all, between a laptop computer and a diagnostic link connector, this cost of the setup
+First of all, between a laptop computer and a diagnostic link connector, the cost 
 may reach into the thousands of dollars. Secondly, this equipment may be too cumbersome to carry into the field.
 A different solution was required, and the following requirements were arrived at:
 
@@ -28,7 +28,7 @@ A different solution was required, and the following requirements were arrived a
 \TUsubsection{Computer Hardware}
 
 The replay mechanism hardware is built around a BeagleBone, a commercially available ARM-based miniature computer produced
-by Texas Instruments\cite{BeagleBone}. The most recent iteration of the design, the BeagleBone Black, retails for roughly \$45 and has a 1GHz ARM
+by Texas Instruments \cite{BeagleBone}. The most recent iteration of the design, the BeagleBone Black, retails for roughly \$45 and has a 1GHz ARM
 processor, 512MB of RAM, and 4GB of onboard flash storage. Weighing just a few ounces, it meets cost-effectiveness and portability
 requirements.
 
@@ -56,8 +56,8 @@ with little to no modification.
 \TUsection{Custom Cape}
 
 As the currently available commercial options for RS-485 did not allow for communicating both over J1708 and J1939 networks, a custom
-hardware solution was required. A custom cape was designed for heavy vehicle communications based on J1708\cite{J1708}. A schematic is included in 
-Appendex \ref{app:schematic}.
+hardware solution was required. A custom cape was designed for heavy vehicle communications based on J1708 \cite{J1708}. A schematic is included in 
+Appendix \ref{app:schematic}.
 
 The J1939 network interface required CAN transceiver hardware. The BeagleBone includes CAN hardware on the board, with access
 to the module provided on pins 24 and 26. Likewise, the J1708/J1587 stack required J1708 hardware. An RS485 transceiver chip from TI
@@ -76,5 +76,5 @@ J1708 software drivers for Linux were nonexistent, so new drivers had to be writ
 module to access the serial interface used to read characters from the J1708 bus. Upon loading the driver, it spawns a thread which synchronizes
 with the J1708 bus, then creates read and send queues. Calls to the \texttt{read\_message} function in the driver consume messages that are placed in the
 read queue. Calls to the \texttt{send\_message} function place messages in the send queue, which the driver consumes and sends out to the J1708 bus.
-Driver code is included in the appendix.
+Driver code is included in Appendix \ref{app:code}.
 

@@ -8,7 +8,7 @@ by Caterpillar is encrypted in such a way that implementing a replay mechanism i
 
 \TUsection{Caterpillar Data}
 
-The information stored on the CAT ECMs under study include warranty report information and snapshot
+The information stored on the Caterpillar ECMs under study include warranty report information and snapshot
 information. The warranty report contains the identity of the ECM, historical usage information such as engine use histogram,
 logged fault codes, and engine configuration information.
 
@@ -63,7 +63,7 @@ the list of proprietary J1708 PIDs shown in Table \ref{tab:catet} was found.
 \end{table}
 
 The names of the functions obviously suggest that much of the message traffic is encrypted. Further analysis of the
-decompiled code, and the disassembly of a native DLL,  revealed the following system:
+decompiled code, and the disassembly of a native DLL, revealed the following system:
 
 \begin{enumerate}
   \item CAT ET sends a session key to the ECM using a SecuritySetup message.
@@ -72,7 +72,9 @@ decompiled code, and the disassembly of a native DLL,  revealed the following sy
         current session key and the second nibble of the proprietary PID.
   \item Each message is passed to a native DLL along with its key for decryption.
   \item The key is an index into an array of bytes; the relevant byte is XOR'd
-        with each byte in the message to encrypt/decrypt it.
+        with each byte in the message to encrypt/decrypt it. The specific bytes are
+        shown in figure \ref{fig:atacryptkeys}, and the algorithm is shown in
+        figure \ref{fig:atacryptalgorithm}.
 \end{enumerate}
 
 
@@ -128,7 +130,8 @@ The ECMs tested were evidence ECMs that were already used, and thus had been pre
 The verification procedure was designed to determine the fidelity of the information replayed, as well as the
 consistency of multiple replays of recorded data as compared to the consistency of multiple downloads of an
 evidence ECM. The test procedure also aimed to test the generality of the specific ECM replay method derived
-for Caterpillar ECMs by performing the same test against multiple ECMs.
+for Caterpillar ECMs by performing the same test against multiple ECMs. The ECMs used are depicted in figures
+\ref{fig:cat-ecm-1} and \ref{fig:cat-ecm-2}.
 
 \begin{figure}[h]
   \centering

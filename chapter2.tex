@@ -8,13 +8,13 @@ and then describes a general method for meeting those requirements. Specifics of
 \TUsubsection{Baseline of Trust}
 
 In order to make a full accounting of potential sources of error in any forensic process, it is important to examine the assumptions that the process requires. Standard methods of 
-truck evidence extraction assume that the ECM is reporting data faithfully, that the vehicle network is accurately transmitting the communication to and from the ECM. It also assumes 
+heavy truck evidence extraction assume that the ECM is reporting data faithfully, and that the vehicle network is accurately transmitting the communication to and from the ECM. It also assumes 
 the Vehicle Diagnostic Adapter (VDA) is faithfully sending data from the vehicle network to the RP1210 library that is called by the OEM software.
 
 While verifying the correct internal functioning of heavy truck ECMs is beyond the scope of this research, the fidelity of data transmitted across the various networks (CAN bus, serial 
 bus and USB) can be easily verified. Both protocols make use of error-correcting codes that detect transmission errors with very high reliability; for example, the CAN 
 cyclic redundancy check that is defined in the CAN standard detects all errors from 1 to 5 bits in the data frame, and will detect all but 0.00018\% of 6-bit 
-errors in a CAN frame\cite{koopman2004}. This represents a level of certainty that would take many years to experimentally verify because the likelihood of having an undetected error is so low.
+errors in a CAN frame \cite{koopman2004}. This represents a level of certainty that would take many years to experimentally verify because the likelihood of having an undetected error is so low.
 
 \TUsubsection{Protocols}
 
@@ -27,7 +27,7 @@ indicate that the value stored to and reported by the ECM is rounded in a simila
 \TUsubsection{Authentication}
 
 A cryptographic hash function is an algorithm that generates a “fingerprint” of a given input. This fingerprint is generated in such a way that if a single bit of the input changes, 
-roughly half the bits in the output file are altered\cite{schneier1996}. As such, they are commonly used to confirm that data have not been altered. A forensically sound tool should use a hash of 
+roughly half the bits in the output file are altered \cite{schneier1996}. As such, they are commonly used to confirm that data have not been altered. A forensically sound tool should use a hash of 
 the extracted truck evidence data to ensure that it has not been altered.
 
 \TUsubsection{Evidence Preservation}
@@ -50,7 +50,7 @@ Though the batteries in ECMs are large, and power drains slowly over time, this 
 
 \end{figure}
 
-\TUsection{The Solution}
+\TUsection{The Solution For Secure Extraction}
 The solution arrived at was borrowed from the world of computer forensics. In a computer forensic investigation,
 a low-level copy of the evidence drive is made; this copy is known as the ``disk image.'' Forensic analysis
 is performed on this disk image instead of the original disk, so as to alter the original source evidence as
