@@ -5,4 +5,5 @@ all:
 	pdflatex -shell-escape TUthesis
 
 clean:
-	rm *.{aux,bbl,blg,lof,log,lot,toc}
+	rm -f *.{aux,bbl,blg,lof,log,lot,toc}
+	rm -rf _minted-*
